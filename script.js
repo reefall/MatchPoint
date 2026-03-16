@@ -3,6 +3,7 @@ const matchOutput = document.getElementById("matchOutput");
 const totalMatches = document.getElementById("totalMatches");
 const wins = document.getElementById("wins");
 const losses = document.getElementById("losses");
+const winRate = document.getElementById("winRate");
 
 let matches = JSON.parse(localStorage.getItem("matches")) || [];
 let editIndex = null;
@@ -41,43 +42,57 @@ function updateStats() {
     totalMatches.textContent = matches.length;
     wins.textContent = winCount;
     losses.textContent = lossCount;
+
+    let rate = 0;
+
+    if (matches.length > 0) {
+        rate = Math.round((winCount / matches.length) * 100);
+    }
+
+    winRate.textContent = rate + "%";
 }
 
 function renderMatches() {
     matchOutput.innerHTML = "";
 
+    if (matches.length === 0) {
+        matchOutput.innerHTML = `<li class="emptyState">Noch keine Matches gespeichert.</li>`;
+        updateStats();
+        return;
+    }
+
     matches.forEach(function(match, index) {
         const newMatch = document.createElement("li");
 
-newMatch.innerHTML = `
-    <div class="matchCard">
-        <div class="matchCardHeader">
-            <h3 class="matchOpponent">${match.opponent}</h3>
-            <span class="matchResult">${match.result}</span>
-        </div>
+        newMatch.innerHTML = `
+            <div class="matchCard">
+                <div class="matchCardHeader">
+                    <h3 class="matchOpponent">${match.opponent}</h3>
+                    <span class="matchResult">${match.result}</span>
+                </div>
 
-        <div class="matchCardBody">
-            <div class="matchInfoRow">
-                <span class="matchLabel">Datum</span>
-                <span class="matchValue">${match.date}</span>
+                <div class="matchCardBody">
+                    <div class="matchInfoRow">
+                        <span class="matchLabel">Datum</span>
+                        <span class="matchValue">${match.date}</span>
+                    </div>
+
+                    <div class="matchInfoRow">
+                        <span class="matchLabel">Spielort</span>
+                        <span class="matchValue">${match.location || "-"}</span>
+                    </div>
+
+                    <div class="matchInfoRow commentRow">
+                        <span class="matchLabel">Kommentar</span>
+                        <span class="matchValue">${match.comment || "-"}</span>
+                    </div>
+                </div>
+
+                <div class="matchCardActions">
+                    <button class="editButton" data-index="${index}">Bearbeiten</button>
+                    <button class="deleteButton" data-index="${index}">Löschen</button>
+                </div>
             </div>
-
-            <div class="matchInfoRow">
-                <span class="matchLabel">Spielort</span>
-                <span class="matchValue">${match.location || "-"}</span>
-            </div>
-
-            <div class="matchInfoRow commentRow">
-                <span class="matchLabel">Kommentar</span>
-                <span class="matchValue">${match.comment || "-"}</span>
-            </div>
-        </div>
-
-        <div class="matchCardActions">
-            <button class="editButton" data-index="${index}">Bearbeiten</button>
-            <button class="deleteButton" data-index="${index}">Löschen</button>
-        </div>
-    </div>
         `;
 
         matchOutput.appendChild(newMatch);
