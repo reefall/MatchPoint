@@ -17,30 +17,26 @@
   overflow: hidden;
 }
 
+.footerContainer{
+display:flex;
+gap:60px;
+margin-top:20px;
+}
+
+.footerBox{
+display:flex;
+flex-direction:column;
+}
+
 .footerTitle{
-    font-weight: bold;
-    margin-bottom: 4px;
-    border-top: 1px solid #ccc;
-    padding-top: 8px;
+font-weight:bold;
+margin-bottom:8px;
+border-top:1px solid #ccc;
+padding-top:8px;
 }
 
-.footerNav a{
-    font: Courier;
-    margin-right:14px;
-    text-decoration:none;
-    color: rgb(255, 98, 98);
-    padding: 0px 5px 0px 5px;
-    border-right: 2px solid white;
-    display: block;
-    margin-bottom: 10px;
-}
-
-.footerNav {
-  height: 30px;
-  background: white;
-  padding-top: 7px;
-  padding-left: 5px;
-  margin-top: 20px;
-  box-shadow: 4px 6px white;
-  height: 30px;
+.footerBox a{
+color:rgb(255,98,98);
+text-decoration:none;
+margin-bottom:8px;
 }
