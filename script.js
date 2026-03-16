@@ -1,26 +1,76 @@
-const form = document.getElementById("matchForm"); //Hier wird das Formular ausgewählt
-const matchOutput = document.getElementById("matchOutput"); //Hier wird die Liste der Matches ausgegeben
+const form = document.getElementById("matchForm");
+const matchOutput = document.getElementById("matchOutput");
 
-form.addEventListener("submit", function(event) { //Hier wird ein EventListener hinzugefügt, der auf das Absenden des Formulars reagiert
-    event.preventDefault(); //damit die Seite nicht neu lädt
+let matches = JSON.parse(localStorage.getItem("matches")) || [];
+let editIndex = null;
 
-    const opponent = document.getElementById("opponent").value; //Hier wird der Wert des Gegners aus dem Formular ausgelesen
-    const date = document.getElementById("date").value; //Hier wird der Wert des Datums aus dem Formular ausgelesen
-    const result = document.getElementById("result").value; //Hier wird der Wert des Ergebnisses aus dem Formular ausgelesen
-    const location = document.getElementById("location").value; //Hier wird der Wert des Spielorts aus dem Formular ausgelesen
-    const comment = document.getElementById("comment").value; //Hier wird der Wert des Kommentars aus dem Formular ausgelesen
+function renderMatches() {
+    matchOutput.innerHTML = "";
 
-    const newMatch = document.createElement("li"); //Hier wird ein neues Listenelement erstellt, um die Match-Informationen anzuzeigen
+    matches.forEach(function(match, index) {
+        const newMatch = document.createElement("li");
 
-    newMatch.innerHTML = ` //Hier wird der Inhalt des neuen Listenelements mit den Match-Informationen gefüllt
-        <strong>${opponent}</strong><br> //Der Gegner wird fett dargestellt
-        Datum: ${date}<br> // Das Datum wird angezeigt
-        Ergebnis: ${result}<br> 
-        Spielort: ${location}<br> 
-        Kommentar: ${comment} 
-    `;
+        newMatch.innerHTML = `
+            <strong>${match.opponent}</strong><br>
+            Datum: ${match.date}<br>
+            Ergebnis: ${match.result}<br>
+            Spielort: ${match.location}<br>
+            Kommentar: ${match.comment}<br><br>
+            <button class="editButton" data-index="${index}">Bearbeiten</button>
+            <button class="deleteButton" data-index="${index}">Löschen</button>
+        `;
 
-    matchOutput.appendChild(newMatch); //Hier wird das neue Listenelement zur Liste der Matches hinzugefügt
+        matchOutput.appendChild(newMatch);
+    });
 
-    form.reset(); //Hier wird das Formular zurückgesetzt, damit die Eingabefelder leer sind
+    const deleteButtons = document.querySelectorAll(".deleteButton");
+    deleteButtons.forEach(function(button) {
+        button.addEventListener("click", function() {
+            const index = button.getAttribute("data-index");
+            matches.splice(index, 1);
+            localStorage.setItem("matches", JSON.stringify(matches));
+            renderMatches();
+        });
+    });
+
+    const editButtons = document.querySelectorAll(".editButton");
+    editButtons.forEach(function(button) {
+        button.addEventListener("click", function() {
+            const index = button.getAttribute("data-index");
+            const match = matches[index];
+
+            document.getElementById("opponent").value = match.opponent;
+            document.getElementById("date").value = match.date;
+            document.getElementById("result").value = match.result;
+            document.getElementById("location").value = match.location;
+            document.getElementById("comment").value = match.comment;
+
+            editIndex = index;
+        });
+    });
+}
+
+form.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const match = {
+        opponent: document.getElementById("opponent").value,
+        date: document.getElementById("date").value,
+        result: document.getElementById("result").value,
+        location: document.getElementById("location").value,
+        comment: document.getElementById("comment").value
+    };
+
+    if (editIndex === null) {
+        matches.push(match);
+    } else {
+        matches[editIndex] = match;
+        editIndex = null;
+    }
+
+    localStorage.setItem("matches", JSON.stringify(matches));
+    form.reset();
+    renderMatches();
 });
+
+renderMatches();
