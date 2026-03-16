@@ -1,4 +1,4 @@
-# MatchPoint
+# MatchPoint - Tennis Match Tracker
 ## Projektidee
 MatchPoint soll eine Webanwendung sein zur Dokumentation und Verwaltung von Tennismatches. Nutzer können ihre gespielten Matches erfassen, Ergebnisse speichern und ihre persönliche Matchhistorie einsehen.
 
