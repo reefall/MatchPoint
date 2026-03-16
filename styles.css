@@ -21,7 +21,7 @@ section{
 }
 
 .mainNav a{
-    font: Courier;
+    font-family: Courier, monospace;
     margin-right:14px;
     text-decoration:none;
     color:black;
@@ -110,6 +110,24 @@ section{
     margin-bottom:12px;
 }
 
+.matchOutput button{
+    margin-right:8px;
+    margin-top:8px;
+    padding:8px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.editButton{
+    background:#d9e7f5;
+}
+
+.deleteButton{
+    background:#f5d9d9;
+}
+
 .footerContainer{
     display:flex;
     gap:60px;
@@ -136,5 +154,5 @@ section{
 }
 
 .footerText{
-    line-height:1,5;
+    line-height:1.5;
 }
