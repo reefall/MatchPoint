@@ -96,6 +96,12 @@ section{
     background:#1f2d3a;
 }
 
+.inputHint{
+    margin-top:6px;
+    font-size:12px;
+    color:#666;
+}
+
 .matchOutput{
     list-style:none;
     padding:0;
@@ -275,6 +281,17 @@ section{
     cursor:pointer;
     font-size:14px;
     font-weight:bold;
+}
+
+/* Leerer Zustand */
+
+.emptyState{
+    background:#fafafa;
+    border:1px dashed #ccc;
+    border-radius:10px;
+    padding:20px;
+    text-align:center;
+    color:#666;
 }
 
 /* Responsive */

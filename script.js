@@ -8,6 +8,11 @@ const winRate = document.getElementById("winRate");
 let matches = JSON.parse(localStorage.getItem("matches")) || [];
 let editIndex = null;
 
+function isValidResult(result) {
+    const pattern = /^(\d+:\d+)(\s\d+:\d+)*$/;
+    return pattern.test(result.trim());
+}
+
 function updateStats() {
     let winCount = 0;
     let lossCount = 0;
@@ -130,10 +135,17 @@ function renderMatches() {
 form.addEventListener("submit", function(event) {
     event.preventDefault();
 
+    const resultValue = document.getElementById("result").value;
+
+    if (!isValidResult(resultValue)) {
+        alert("Bitte gib ein gültiges Ergebnis ein, zum Beispiel: 6:4 6:3");
+        return;
+    }
+
     const match = {
         opponent: document.getElementById("opponent").value,
         date: document.getElementById("date").value,
-        result: document.getElementById("result").value,
+        result: resultValue,
         location: document.getElementById("location").value,
         comment: document.getElementById("comment").value
     };
