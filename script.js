@@ -1,8 +1,47 @@
 const form = document.getElementById("matchForm");
 const matchOutput = document.getElementById("matchOutput");
+const totalMatches = document.getElementById("totalMatches");
+const wins = document.getElementById("wins");
+const losses = document.getElementById("losses");
 
 let matches = JSON.parse(localStorage.getItem("matches")) || [];
 let editIndex = null;
+
+function updateStats() {
+    let winCount = 0;
+    let lossCount = 0;
+
+    matches.forEach(function(match) {
+        const sets = match.result.trim().split(" ");
+        let wonSets = 0;
+        let lostSets = 0;
+
+        sets.forEach(function(setScore) {
+            const scores = setScore.split(":");
+
+            if (scores.length === 2) {
+                const myGames = parseInt(scores[0]);
+                const opponentGames = parseInt(scores[1]);
+
+                if (myGames > opponentGames) {
+                    wonSets++;
+                } else if (myGames < opponentGames) {
+                    lostSets++;
+                }
+            }
+        });
+
+        if (wonSets > lostSets) {
+            winCount++;
+        } else if (lostSets > wonSets) {
+            lossCount++;
+        }
+    });
+
+    totalMatches.textContent = matches.length;
+    wins.textContent = winCount;
+    losses.textContent = lossCount;
+}
 
 function renderMatches() {
     matchOutput.innerHTML = "";
@@ -48,6 +87,8 @@ function renderMatches() {
             editIndex = index;
         });
     });
+
+    updateStats();
 }
 
 form.addEventListener("submit", function(event) {
