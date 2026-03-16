@@ -24,6 +24,37 @@
 
 <section id="addMatch">
   <h2>Neues Match</h2>
+
+  <form id="matchForm" class="matchForm">
+    <div class="formGroup">
+      <label for="opponent">Gegner</label>
+      <input type="text" id="opponent" required>
+    </div>
+
+    <div class="formGroup">
+      <label for="date">Datum</label>
+      <input type="date" id="date" required>
+    </div>
+
+    <div class="formGroup">
+      <label for="result">Ergebnis</label>
+      <input type="text" id="result" placeholder="z. B. 6:4 6:3">
+    </div>
+
+    <div class="formGroup">
+      <label for="location">Spielort</label>
+      <input type="text" id="location">
+    </div>
+
+    <div class="formGroup formGroupFull">
+      <label for="comment">Kommentar</label>
+      <textarea id="comment" rows="4"></textarea>
+    </div>
+
+    <div class="formActions">
+      <button type="submit">Match speichern</button>
+    </div>
+  </form>
 </section>
 
 <section id="matchList">
