@@ -28,9 +28,9 @@ Für jedes Match werden folgende Informationen gespeichert:
 
 matchpoint
 │
-├── index.html
-├── style.css
-├── script.js
+└── index.html
+└── style.css
+└── script.js
 └── README.md
 
 ## Optional
