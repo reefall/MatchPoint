@@ -19,11 +19,14 @@ Für jedes Match werden folgende Informationen gespeichert:
 - Spielort
 - optionaler Kommentar zum Match
 
+## Technische Umsetzung
+- HTML für die Struktur des Webseite
+- CSS für Layout und Styling
+- JavaScript für Interaktivität
+- Speicherung der Daten im localStorage
+- Backend mit Node.js und Datenbank zur permanenten Speicherung
+
 ## Optional
 Anzeige einer persönlichen Matchstatistik (Siege/Niederlagen)
 
 
-
-
-
-Abgabe Projekt mit Projektbeschreibung anlegen und Lunk bei Themenanmeldung hochladen
