@@ -26,6 +26,13 @@ Für jedes Match werden folgende Informationen gespeichert:
 - Speicherung der Daten im localStorage
 - Backend mit Node.js und Datenbank zur permanenten Speicherung
 
+matchpoint
+│
+├── index.html
+├── style.css
+├── script.js
+└── README.md
+
 ## Optional
 Anzeige einer persönlichen Matchstatistik (Siege/Niederlagen)
 
