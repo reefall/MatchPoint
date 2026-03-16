@@ -1,114 +1,207 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MatchPoint - Tennis Match Tracker</title>
+  <title>MatchPoint – Competitive Tennis Tracker</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-<header>
-  <h1>MatchPoint</h1>
-  <nav class="mainNav">
-    <a href="./index.html">Home</a>
-    <a href="./spieler.html">Spieler</a>
-    <a href="./matches.html">Matches</a>
-  </nav>
+<header class="siteHeader">
+  <div class="headerInner">
+    <div class="brandBlock">
+      <p class="eyebrow">Competitive Tennis Tracker</p>
+      <h1>MatchPoint</h1>
+      <p class="headerSubline">Dein Dashboard für Matches, Formkurve und Leistungsdaten.</p>
+    </div>
+
+    <nav class="mainNav">
+      <a class="active" href="./index.html">Dashboard</a>
+      <a href="./spieler.html">Spieler</a>
+      <a href="./matches.html">Matches</a>
+    </nav>
+  </div>
 </header>
 
-<main>
+<main class="pageShell">
 
-  <section id="addMatch">
-    <h2>Neues Match</h2>
-
-    <form id="matchForm" class="matchForm">
-      <div class="formGroup">
-        <label for="opponent">Gegner</label>
-        <input type="text" id="opponent" required>
+  <section class="heroPanel">
+    <div class="panelHeader">
+      <div>
+        <p class="eyebrow">Overview</p>
+        <h2>Competitive Overview</h2>
+        <p class="sectionIntro">Alle wichtigen Kennzahlen auf einen Blick – kompakt, kompetitiv und klar strukturiert.</p>
       </div>
+    </div>
 
-      <div class="formGroup">
-        <label for="date">Datum</label>
-        <input type="date" id="date" required>
+    <div class="heroStatsGrid">
+      <article class="heroStatCard">
+        <span class="label">Matches</span>
+        <span class="value" id="totalMatches">0</span>
+        <p class="subtext">gespielte Matches</p>
+      </article>
+
+      <article class="heroStatCard">
+        <span class="label">Siege</span>
+        <span class="value accent" id="wins">0</span>
+        <p class="subtext">gewonnene Matches</p>
+      </article>
+
+      <article class="heroStatCard">
+        <span class="label">Niederlagen</span>
+        <span class="value" id="losses">0</span>
+        <p class="subtext">verlorene Matches</p>
+      </article>
+
+      <article class="heroStatCard">
+        <span class="label">Siegquote</span>
+        <span class="value accent" id="winRate">0%</span>
+        <p class="subtext">Erfolgsrate insgesamt</p>
+      </article>
+    </div>
+
+    <div class="meterCard">
+      <div class="meterHeader">
+        <span>Win Rate</span>
+        <span id="winRateInline">0%</span>
       </div>
-
-      <div class="formGroup">
-        <label for="result">Ergebnis</label>
-        <input type="text" id="result" placeholder="z. B. 6:4 6:3" required>
-        <small class="inputHint">Bitte im Format 6:4 6:3 eingeben.</small>
-      </div>
-
-      <div class="formGroup">
-        <label for="location">Spielort</label>
-        <input type="text" id="location">
-      </div>
-
-      <div class="formGroup formGroupFull">
-        <label for="comment">Kommentar</label>
-        <textarea id="comment" rows="4"></textarea>
-      </div>
-
-      <div class="formActions">
-        <button type="submit">Match speichern</button>
-      </div>
-    </form>
-  </section>
-
-  <section id="statsSection">
-    <h2>Statistik</h2>
-
-    <div class="statsContainer">
-      <div class="statBox">
-        <p class="statNumber" id="totalMatches">0</p>
-        <p class="statLabel">Matches</p>
-      </div>
-
-      <div class="statBox">
-        <p class="statNumber" id="wins">0</p>
-        <p class="statLabel">Siege</p>
-      </div>
-
-      <div class="statBox">
-        <p class="statNumber" id="losses">0</p>
-        <p class="statLabel">Niederlagen</p>
-      </div>
-
-      <div class="statBox">
-        <p class="statNumber" id="winRate">0%</p>
-        <p class="statLabel">Siegquote</p>
+      <div class="meterTrack">
+        <div id="winRateBar" class="meterFill"></div>
       </div>
     </div>
   </section>
 
-  <section id="matchList">
-    <h2>Matchübersicht</h2>
-    <ul id="matchOutput" class="matchOutput"></ul>
+  <section class="performancePanel">
+    <div class="panelHeader">
+      <div>
+        <p class="eyebrow">Performance</p>
+        <h2>Leistungsdaten</h2>
+        <p class="sectionIntro">Zusätzliche Kennzahlen für Form, Satz- und Spielbilanz.</p>
+      </div>
+    </div>
+
+    <div class="performanceGrid">
+      <article class="metricCard">
+        <span class="metricLabel">Aktuelle Serie</span>
+        <span class="metricValue" id="currentStreak">-</span>
+      </article>
+
+      <article class="metricCard">
+        <span class="metricLabel">Beste Serie</span>
+        <span class="metricValue" id="bestStreak">-</span>
+      </article>
+
+      <article class="metricCard">
+        <span class="metricLabel">Satzbilanz</span>
+        <span class="metricValue" id="setRecord">0:0</span>
+      </article>
+
+      <article class="metricCard">
+        <span class="metricLabel">Spielbilanz</span>
+        <span class="metricValue" id="gameRecord">0:0</span>
+      </article>
+
+      <article class="metricCard">
+        <span class="metricLabel">Ø Games gewonnen</span>
+        <span class="metricValue" id="avgGamesWon">0.0</span>
+      </article>
+
+      <article class="metricCard">
+        <span class="metricLabel">Ø Games abgegeben</span>
+        <span class="metricValue" id="avgGamesLost">0.0</span>
+      </article>
+    </div>
+
+    <div class="recentPanel">
+      <div class="recentHeader">
+        <div>
+          <h3>Form der letzten 5 Matches</h3>
+          <p id="recentSummary">Noch keine Daten vorhanden.</p>
+        </div>
+      </div>
+      <div id="recentForm" class="recentForm"></div>
+    </div>
   </section>
+
+  <div class="contentGrid">
+    <section id="addMatch" class="cardPanel">
+      <div class="panelHeader compact">
+        <div>
+          <p class="eyebrow">Input</p>
+          <h2>Neues Match</h2>
+        </div>
+      </div>
+
+      <form id="matchForm" class="matchForm">
+        <div class="formGroup">
+          <label for="opponent">Gegner</label>
+          <input type="text" id="opponent" required>
+        </div>
+
+        <div class="formGroup">
+          <label for="date">Datum</label>
+          <input type="date" id="date" required>
+        </div>
+
+        <div class="formGroup">
+          <label for="result">Ergebnis</label>
+          <input type="text" id="result" placeholder="z. B. 6:4 6:3" required>
+          <small class="inputHint">Bitte im Format 6:4 6:3 eingeben.</small>
+        </div>
+
+        <div class="formGroup">
+          <label for="location">Spielort</label>
+          <input type="text" id="location" placeholder="z. B. TC Villingen">
+        </div>
+
+        <div class="formGroup formGroupFull">
+          <label for="comment">Kommentar</label>
+          <textarea id="comment" rows="5" placeholder="Kurze Notizen zum Match, z. B. starker Aufschlag oder schwache Rückhand."></textarea>
+        </div>
+
+        <div class="formActions">
+          <button id="submitButton" type="submit" class="primaryButton">Match speichern</button>
+          <button id="cancelEditButton" type="button" class="secondaryButton hidden">Bearbeitung abbrechen</button>
+        </div>
+
+        <p id="formMessage" class="formMessage" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="matchList" class="cardPanel historyPanel">
+      <div class="panelHeader compact">
+        <div>
+          <p class="eyebrow">History</p>
+          <h2>Matchübersicht</h2>
+        </div>
+        <p class="sectionIntro">Neueste Matches zuerst.</p>
+      </div>
+
+      <ul id="matchOutput" class="matchOutput"></ul>
+    </section>
+  </div>
 
 </main>
 
-<footer>
-  <div class="footerContainer">
-
-    <div class="footerBox">
-      <p class="footerTitle">MatchPoint Kontaktformular</p>
+<footer class="siteFooter">
+  <div class="footerInner">
+    <div class="footerBlock">
+      <p class="footerTitle">MatchPoint Kontakt</p>
       <p class="footerText">
-        Aufgrund der aktuell hohen Anzahl an Anfragen ist unser Service-Center stark ausgelastet.<br>
-        Wir bitten um Verständnis dafür, dass die Beantwortung der Anfragen etwas mehr Zeit in Anspruch nehmen kann.<br>
-        Vielen Dank für deine Geduld!
+        Aufgrund der aktuell hohen Anzahl an Anfragen ist unser Service-Center stark ausgelastet.
+        Wir bitten um Verständnis dafür, dass die Beantwortung der Anfragen etwas mehr Zeit in Anspruch nehmen kann.
       </p>
     </div>
 
-    <div class="footerBox">
-      <p class="footerTitle">MatchPoint Service</p>
-      <a href="./aboutus.html">Über uns</a>
-      <a href="./contact.html">Kontakt</a>
-      <a href="./faq.html">Häufig gestellte Fragen</a>
+    <div class="footerBlock">
+      <p class="footerTitle">Service</p>
+      <div class="footerLinks">
+        <a href="./aboutus.html">Über uns</a>
+        <a href="./contact.html">Kontakt</a>
+        <a href="./faq.html">Häufig gestellte Fragen</a>
+      </div>
     </div>
-
   </div>
 </footer>
 
