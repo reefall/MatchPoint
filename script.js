@@ -49,14 +49,35 @@ function renderMatches() {
     matches.forEach(function(match, index) {
         const newMatch = document.createElement("li");
 
-        newMatch.innerHTML = `
-            <strong>${match.opponent}</strong><br>
-            Datum: ${match.date}<br>
-            Ergebnis: ${match.result}<br>
-            Spielort: ${match.location}<br>
-            Kommentar: ${match.comment}<br><br>
+newMatch.innerHTML = `
+    <div class="matchCard">
+        <div class="matchCardHeader">
+            <h3 class="matchOpponent">${match.opponent}</h3>
+            <span class="matchResult">${match.result}</span>
+        </div>
+
+        <div class="matchCardBody">
+            <div class="matchInfoRow">
+                <span class="matchLabel">Datum</span>
+                <span class="matchValue">${match.date}</span>
+            </div>
+
+            <div class="matchInfoRow">
+                <span class="matchLabel">Spielort</span>
+                <span class="matchValue">${match.location || "-"}</span>
+            </div>
+
+            <div class="matchInfoRow commentRow">
+                <span class="matchLabel">Kommentar</span>
+                <span class="matchValue">${match.comment || "-"}</span>
+            </div>
+        </div>
+
+        <div class="matchCardActions">
             <button class="editButton" data-index="${index}">Bearbeiten</button>
             <button class="deleteButton" data-index="${index}">Löschen</button>
+        </div>
+    </div>
         `;
 
         matchOutput.appendChild(newMatch);

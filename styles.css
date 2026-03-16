@@ -103,11 +103,11 @@ section{
 }
 
 .matchOutput li{
-    background:#fafafa;
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:14px 16px;
-    margin-bottom:12px;
+    list-style:none;
+    margin-bottom:16px;
+    padding:0;
+    border:none;
+    background:transparent;
 }
 
 .matchOutput button{
@@ -122,10 +122,20 @@ section{
 
 .editButton{
     background:#d9e7f5;
+    color:#1f2d3a;
 }
 
 .deleteButton{
     background:#f5d9d9;
+    color:#7a1f1f;
+}
+
+.editButton:hover{
+    background:#c9ddf1;
+}
+
+.deleteButton:hover{
+    background:#efc7c7;
 }
 
 .footerContainer{
@@ -182,4 +192,122 @@ section{
 .statLabel{
     margin-top:8px;
     margin-bottom:0;
+}
+
+/* Matchkarten */
+
+.matchCard{
+    background:white;
+    border:1px solid #e2e2e2;
+    border-radius:12px;
+    padding:18px 20px;
+    box-shadow:0 3px 10px rgba(0, 0, 0, 0.06);
+}
+
+.matchCardHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    margin-bottom:16px;
+    padding-bottom:12px;
+    border-bottom:1px solid #ececec;
+}
+
+.matchOpponent{
+    margin:0;
+    font-size:22px;
+    color:#1f2d3a;
+}
+
+.matchResult{
+    background:#eef3f7;
+    color:#2c3e50;
+    padding:8px 14px;
+    border-radius:999px;
+    font-weight:bold;
+    font-size:15px;
+    white-space:nowrap;
+}
+
+.matchCardBody{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.matchInfoRow{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+    padding:6px 0;
+}
+
+.matchLabel{
+    font-weight:bold;
+    color:#555;
+    min-width:110px;
+}
+
+.matchValue{
+    color:#222;
+    text-align:right;
+    flex:1;
+}
+
+.commentRow .matchValue{
+    line-height:1.5;
+}
+
+.matchCardActions{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid #ececec;
+}
+
+.matchCardActions button{
+    padding:10px 14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+}
+
+/* Responsive */
+
+@media (max-width: 700px){
+    .matchCardHeader{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .matchInfoRow{
+        flex-direction:column;
+        gap:4px;
+    }
+
+    .matchValue{
+        text-align:left;
+    }
+
+    .matchCardActions{
+        flex-direction:column;
+    }
+
+    .statsContainer{
+        flex-direction:column;
+    }
+
+    .footerContainer{
+        flex-direction:column;
+        gap:30px;
+    }
+
+    .matchForm{
+        grid-template-columns:1fr;
+    }
 }
