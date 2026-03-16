@@ -1,44 +1,140 @@
+body{
+    background:#f4f4f4;
+    font-family: Arial, sans-serif;
+    margin:40px;
+}
+
+header{
+    margin-bottom:30px;
+}
+
+main{
+    margin-top:30px;
+}
+
+section{
+    background:white;
+    padding:25px;
+    margin-bottom:25px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
 .mainNav a{
     font: Courier;
     margin-right:14px;
     text-decoration:none;
-    color: black;
-    padding: 0px 5px 0px 5px;
-    border-right: 2px solid white;
+    color:black;
+    padding:0 5px 0 5px;
+    border-right:2px solid white;
 }
 
-.mainNav {
-  height: 30px;
-  background: white;
-  padding-top: 7px;
-  padding-left: 5px;
-  margin-top: 20px;
-  box-shadow: 4px 6px white;
-  overflow: hidden;
+.mainNav{
+    height:30px;
+    background:white;
+    padding-top:7px;
+    padding-left:5px;
+    margin-top:20px;
+    box-shadow:4px 6px white;
+    overflow:hidden;
+}
+
+.matchForm{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px 20px;
+    margin-top:20px;
+}
+
+.formGroup{
+    display:flex;
+    flex-direction:column;
+}
+
+.formGroup label{
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.formGroup input,
+.formGroup textarea{
+    padding:10px 12px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:14px;
+    font-family:Arial, sans-serif;
+    background:#fafafa;
+    box-sizing:border-box;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus{
+    outline:none;
+    border-color:#999;
+    background:white;
+}
+
+.formGroupFull{
+    grid-column:1 / -1;
+}
+
+.formActions{
+    grid-column:1 / -1;
+}
+
+.formActions button{
+    background:#2c3e50;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.formActions button:hover{
+    background:#1f2d3a;
+}
+
+.matchOutput{
+    list-style:none;
+    padding:0;
+    margin:20px 0 0 0;
+}
+
+.matchOutput li{
+    background:#fafafa;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:12px;
 }
 
 .footerContainer{
-display:flex;
-gap:60px;
-margin-top:20px;
-max-width: 900px;
+    display:flex;
+    gap:60px;
+    margin-top:20px;
 }
 
 .footerBox{
-flex:1;
-display:flex;
-flex-direction:column;
+    flex:1;
+    display:flex;
+    flex-direction:column;
 }
 
 .footerTitle{
-font-weight:bold;
-margin-bottom:8px;
-border-top:1px solid #ccc;
-padding-top:8px;
+    font-weight:bold;
+    margin-bottom:8px;
+    border-top:1px solid #ccc;
+    padding-top:8px;
 }
 
 .footerBox a{
-color:rgb(255,98,98);
-text-decoration:none;
-margin-bottom:8px;
+    color:rgb(255,98,98);
+    text-decoration:none;
+    margin-bottom:8px;
+}
+
+.footerText{
+    line-height:1.5;
 }
