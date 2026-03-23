@@ -21,6 +21,16 @@ Nutzer können gespielte Matches dokumentieren, Ergebnisse speichern und ihre pe
 4. Rechtsklick auf `index.html`
 5. **Open with Live Server** auswählen
 
+## Projektstruktur
+- `index.html` – Startseite
+- `matches.html` – Matchübersicht
+- `spieler.html` – Spielerbereich
+- `aboutus.html` – Über-uns-Seite
+- `contact.html` – Kontaktseite
+- `faq.html` – FAQ
+- `styles.css` – Styling
+- `script.js` – Logik und Interaktivität
+
 ## Datenverwaltung
 Für jedes Match können folgende Informationen gespeichert werden:
 
