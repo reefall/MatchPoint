@@ -1,32 +1,46 @@
 # MatchPoint - Tennis Match Tracker
-## Projektidee
-MatchPoint soll eine Webanwendung sein zur Dokumentation und Verwaltung von Tennismatches. Nutzer können ihre gespielten Matches erfassen, Ergebnisse speichern und ihre persönliche Matchhistorie einsehen.
 
-Die Anwendung soll ein digitales Logbuch für Tennisspieler sein um Spiele gegen verschiedene Gegner zu dokumentieren und die eigene Entwicklung nachzuvollziehen.
+MatchPoint ist eine einfache Webanwendung zum Erfassen und Verwalten von Tennismatches.  
+Nutzer können gespielte Matches dokumentieren, Ergebnisse speichern und ihre persönliche Matchhistorie übersichtlich nachverfolgen.
 
-## Funktionen
-Die Webanwendung ermöglicht folgende Funktionen:
+## Features
 - Tennismatches hinzufügen
 - Matchdaten bearbeiten
 - Matches löschen
 - Übersicht aller gespielten Matches anzeigen
+- Speicherung der Daten im Browser über `localStorage`
 
-## Daten verwalten
-Für jedes Match werden folgende Informationen gespeichert:
+### Variante 1: Direkt öffnen
+1. Repository herunterladen oder klonen
+2. Die Datei `index.html` im Browser öffnen
+
+### Variante 2: Mit Live Server in VS Code
+1. Repository klonen oder herunterladen
+2. Projekt in Visual Studio Code öffnen
+3. Erweiterung **Live Server** installieren
+4. Rechtsklick auf `index.html`
+5. **Open with Live Server** auswählen
+
+## Datenverwaltung
+Für jedes Match können folgende Informationen gespeichert werden:
+
 - Name des Gegners
 - Datum des Matches
 - Spielergebnis
 - Spielort
-- optionaler Kommentar zum Match
+- Optionaler Kommentar zum Match
 
-## Technische Umsetzung
-- HTML für die Struktur des Webseite
-- CSS für Layout und Styling
-- JavaScript für Interaktivität
-- Speicherung der Daten im localStorage
-- Backend mit Node.js und Datenbank zur permanenten Speicherung
+## Idee hinter dem Projekt
+MatchPoint soll als digitales Logbuch für Tennisspieler dienen.  
+Ziel ist es, Matches gegen verschiedene Gegner festzuhalten und die eigene Entwicklung besser nachvollziehen zu können.
 
-## Optional
-Anzeige einer persönlichen Matchstatistik (Siege/Niederlagen)
+## Ausblick
+Mögliche Erweiterungen:
 
+- persönliche Matchstatistik
+- Sieg-/Niederlagen-Auswertung
+- Filter- und Suchfunktion
+- spätere Anbindung an Backend und Datenbank
 
+## Autor
+Entwickelt von reefall

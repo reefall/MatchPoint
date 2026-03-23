@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MatchPoint – Competitive Tennis Tracker</title>
+  <title>MatchPoint – LK Dashboard</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header class="siteHeader">
-  <div class="headerInner">
+  <div class="container headerRow">
     <div class="brandBlock">
-      <p class="eyebrow">Competitive Tennis Tracker</p>
+      <p class="eyebrow">DTB-orientierter LK-Tracker</p>
       <h1>MatchPoint</h1>
-      <p class="headerSubline">Dein Dashboard für Matches, Formkurve und Leistungsdaten.</p>
+      <p class="subline">Dashboard für Matches, LK-Entwicklung und Leistungskurve.</p>
     </div>
 
     <nav class="mainNav">
@@ -24,40 +24,46 @@
   </div>
 </header>
 
-<main class="pageShell">
+<main class="container pageGrid">
 
-  <section class="heroPanel">
-    <div class="panelHeader">
+  <section class="panel overviewPanel">
+    <div class="panelTop">
       <div>
         <p class="eyebrow">Overview</p>
-        <h2>Competitive Overview</h2>
-        <p class="sectionIntro">Alle wichtigen Kennzahlen auf einen Blick – kompakt, kompetitiv und klar strukturiert.</p>
+        <h2>LK-Übersicht</h2>
+        <p class="introText">Kompakter Überblick über Matchbilanz und aktuelle LK-Entwicklung.</p>
       </div>
     </div>
 
-    <div class="heroStatsGrid">
-      <article class="heroStatCard">
-        <span class="label">Matches</span>
-        <span class="value" id="totalMatches">0</span>
-        <p class="subtext">gespielte Matches</p>
+    <div class="overviewCards">
+      <article class="statCard">
+        <span class="statLabel">Matches</span>
+        <span class="statValue" id="totalMatches">0</span>
       </article>
 
-      <article class="heroStatCard">
-        <span class="label">Siege</span>
-        <span class="value accent" id="wins">0</span>
-        <p class="subtext">gewonnene Matches</p>
+      <article class="statCard">
+        <span class="statLabel">Siege</span>
+        <span class="statValue accentGreen" id="wins">0</span>
       </article>
 
-      <article class="heroStatCard">
-        <span class="label">Niederlagen</span>
-        <span class="value" id="losses">0</span>
-        <p class="subtext">verlorene Matches</p>
+      <article class="statCard">
+        <span class="statLabel">Niederlagen</span>
+        <span class="statValue" id="losses">0</span>
       </article>
 
-      <article class="heroStatCard">
-        <span class="label">Siegquote</span>
-        <span class="value accent" id="winRate">0%</span>
-        <p class="subtext">Erfolgsrate insgesamt</p>
+      <article class="statCard">
+        <span class="statLabel">Siegquote</span>
+        <span class="statValue accentGreen" id="winRate">0%</span>
+      </article>
+
+      <article class="statCard">
+        <span class="statLabel">Aktuelle LK</span>
+        <span class="statValue" id="currentLk">24,0</span>
+      </article>
+
+      <article class="statCard">
+        <span class="statLabel">Beste LK</span>
+        <span class="statValue accentGreen" id="bestLk">24,0</span>
       </article>
     </div>
 
@@ -70,63 +76,63 @@
         <div id="winRateBar" class="meterFill"></div>
       </div>
     </div>
-  </section>
 
-  <section class="performancePanel">
-    <div class="panelHeader">
-      <div>
-        <p class="eyebrow">Performance</p>
-        <h2>Leistungsdaten</h2>
-        <p class="sectionIntro">Zusätzliche Kennzahlen für Form, Satz- und Spielbilanz.</p>
-      </div>
-    </div>
-
-    <div class="performanceGrid">
-      <article class="metricCard">
-        <span class="metricLabel">Aktuelle Serie</span>
-        <span class="metricValue" id="currentStreak">-</span>
-      </article>
-
-      <article class="metricCard">
-        <span class="metricLabel">Beste Serie</span>
-        <span class="metricValue" id="bestStreak">-</span>
-      </article>
-
-      <article class="metricCard">
-        <span class="metricLabel">Satzbilanz</span>
-        <span class="metricValue" id="setRecord">0:0</span>
-      </article>
-
-      <article class="metricCard">
-        <span class="metricLabel">Spielbilanz</span>
-        <span class="metricValue" id="gameRecord">0:0</span>
-      </article>
-
-      <article class="metricCard">
-        <span class="metricLabel">Ø Games gewonnen</span>
-        <span class="metricValue" id="avgGamesWon">0.0</span>
-      </article>
-
-      <article class="metricCard">
-        <span class="metricLabel">Ø Games abgegeben</span>
-        <span class="metricValue" id="avgGamesLost">0.0</span>
-      </article>
-    </div>
-
-    <div class="recentPanel">
-      <div class="recentHeader">
-        <div>
-          <h3>Form der letzten 5 Matches</h3>
-          <p id="recentSummary">Noch keine Daten vorhanden.</p>
-        </div>
+    <div class="recentFormPanel">
+      <div class="recentFormHeader">
+        <h3>Form der letzten 5 Matches</h3>
+        <p id="recentSummary">Noch keine Daten vorhanden.</p>
       </div>
       <div id="recentForm" class="recentForm"></div>
     </div>
   </section>
 
+  <section class="panel curvePanel">
+    <div class="panelTop">
+      <div>
+        <p class="eyebrow">Performance</p>
+        <h2>LK-Leistungskurve</h2>
+        <p class="introText">Die Kurve zeigt den berechneten Begleitwert nach jedem gespeicherten Match. Niedriger ist besser.</p>
+      </div>
+    </div>
+
+    <div class="curveSummaryGrid">
+      <article class="summaryCard">
+        <span class="summaryLabel">Begleitwert aktuell</span>
+        <span class="summaryValue" id="currentCompanion">24,000</span>
+      </article>
+
+      <article class="summaryCard">
+        <span class="summaryLabel">Letzte Verbesserung</span>
+        <span class="summaryValue" id="lastImprovement">0,000</span>
+      </article>
+
+      <article class="summaryCard">
+        <span class="summaryLabel">Ø Gegner-LK</span>
+        <span class="summaryValue" id="avgOpponentLk">-</span>
+      </article>
+
+      <article class="summaryCard">
+        <span class="summaryLabel">Peak (beste LK)</span>
+        <span class="summaryValue" id="peakCompanion">24,000</span>
+      </article>
+    </div>
+
+    <div class="chartCard">
+      <div class="chartHeader">
+        <div>
+          <h3>Begleitwert-Verlauf</h3>
+          <p id="chartSubline">Noch keine Matches vorhanden.</p>
+        </div>
+      </div>
+      <div class="chartWrap">
+        <svg id="lkChart" viewBox="0 0 1000 320" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+  </section>
+
   <div class="contentGrid">
-    <section id="addMatch" class="cardPanel">
-      <div class="panelHeader compact">
+    <section class="panel inputPanel">
+      <div class="panelTop compact">
         <div>
           <p class="eyebrow">Input</p>
           <h2>Neues Match</h2>
@@ -145,9 +151,47 @@
         </div>
 
         <div class="formGroup">
+          <label for="ownLk">Eigene LK</label>
+          <input type="text" id="ownLk" placeholder="z. B. 17,5" required>
+          <small class="inputHint">Normale Ersteinstufung: 24,0</small>
+        </div>
+
+        <div class="formGroup">
+          <label for="opponentLk">Gegner-LK</label>
+          <input type="text" id="opponentLk" placeholder="z. B. 16,4" required>
+        </div>
+
+        <div class="formGroup">
+          <label for="ageClass">Altersklasse</label>
+          <select id="ageClass">
+            <option value="21">U21</option>
+            <option value="open" selected>Offene Klasse</option>
+            <option value="30">AK 30</option>
+            <option value="35">AK 35</option>
+            <option value="40">AK 40</option>
+            <option value="45">AK 45</option>
+            <option value="50">AK 50</option>
+            <option value="55">AK 55</option>
+            <option value="60">AK 60</option>
+            <option value="65">AK 65</option>
+            <option value="70">AK 70</option>
+            <option value="75">AK 75</option>
+            <option value="80">AK 80</option>
+            <option value="85">AK 85</option>
+            <option value="90">AK 90</option>
+          </select>
+        </div>
+
+        <div class="formGroup">
           <label for="result">Ergebnis</label>
           <input type="text" id="result" placeholder="z. B. 6:4 6:3" required>
-          <small class="inputHint">Bitte im Format 6:4 6:3 eingeben.</small>
+          <small class="inputHint">Format: 6:4 6:3</small>
+        </div>
+
+        <div class="formGroup">
+          <label for="weeksInactive">Wochen seit letztem LK-Spiel</label>
+          <input type="number" id="weeksInactive" min="0" step="1" value="0">
+          <small class="inputHint">Für den Motivationsaufschlag</small>
         </div>
 
         <div class="formGroup">
@@ -155,9 +199,21 @@
           <input type="text" id="location" placeholder="z. B. TC Villingen">
         </div>
 
+        <div class="formGroup checkGroup">
+          <label class="checkRow">
+            <input type="checkbox" id="teamMatch">
+            <span>Punktspiel / Teamwettbewerb (+10 %)</span>
+          </label>
+
+          <label class="checkRow">
+            <input type="checkbox" id="shortSets">
+            <span>Kurzsätze bis 4 (75 %)</span>
+          </label>
+        </div>
+
         <div class="formGroup formGroupFull">
           <label for="comment">Kommentar</label>
-          <textarea id="comment" rows="5" placeholder="Kurze Notizen zum Match, z. B. starker Aufschlag oder schwache Rückhand."></textarea>
+          <textarea id="comment" rows="4" placeholder="Kurze Notizen zum Match."></textarea>
         </div>
 
         <div class="formActions">
@@ -167,15 +223,19 @@
 
         <p id="formMessage" class="formMessage" aria-live="polite"></p>
       </form>
+
+      <div class="infoNote">
+        <strong>Hinweis:</strong> Dieses Dashboard visualisiert die LK-Logik lokal. Verbindlich bleibt die offizielle DTB-Auswertung.
+      </div>
     </section>
 
-    <section id="matchList" class="cardPanel historyPanel">
-      <div class="panelHeader compact">
+    <section class="panel historyPanel">
+      <div class="panelTop compact historyTop">
         <div>
           <p class="eyebrow">History</p>
           <h2>Matchübersicht</h2>
         </div>
-        <p class="sectionIntro">Neueste Matches zuerst.</p>
+        <p class="historyHint">Neueste Matches zuerst.</p>
       </div>
 
       <ul id="matchOutput" class="matchOutput"></ul>
@@ -185,7 +245,7 @@
 </main>
 
 <footer class="siteFooter">
-  <div class="footerInner">
+  <div class="container footerGrid">
     <div class="footerBlock">
       <p class="footerTitle">MatchPoint Kontakt</p>
       <p class="footerText">

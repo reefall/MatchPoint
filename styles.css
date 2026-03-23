@@ -35,18 +35,16 @@ a{
     color:inherit;
 }
 
-.siteHeader{
-    padding:32px 24px 0;
-}
-
-.headerInner,
-.pageShell,
-.footerInner{
+.container{
     max-width:1280px;
     margin:0 auto;
 }
 
-.headerInner{
+.siteHeader{
+    padding:32px 24px 0;
+}
+
+.headerRow{
     display:flex;
     justify-content:space-between;
     align-items:flex-end;
@@ -68,7 +66,7 @@ a{
     font-weight:700;
 }
 
-.headerSubline{
+.subline{
     margin:0;
     color:var(--muted);
     max-width:560px;
@@ -105,16 +103,14 @@ a{
     color:#FFFFFF;
 }
 
-.pageShell{
+.pageGrid{
     padding:24px;
     display:flex;
     flex-direction:column;
     gap:18px;
 }
 
-.heroPanel,
-.performancePanel,
-.cardPanel{
+.panel{
     background:var(--surface);
     border:1px solid var(--border);
     border-radius:var(--radius);
@@ -122,7 +118,7 @@ a{
     padding:24px;
 }
 
-.panelHeader{
+.panelTop{
     display:flex;
     justify-content:space-between;
     align-items:flex-end;
@@ -130,36 +126,36 @@ a{
     margin-bottom:18px;
 }
 
-.panelHeader.compact{
+.panelTop.compact{
     margin-bottom:16px;
 }
 
-.panelHeader h2{
+.panelTop h2{
     margin:6px 0 0;
     font-size:24px;
     color:var(--navy);
 }
 
-.sectionIntro{
+.introText{
     margin:6px 0 0;
     color:var(--muted);
     font-size:14px;
 }
 
-.heroStatsGrid{
+.overviewCards{
     display:grid;
-    grid-template-columns:repeat(4, minmax(0, 1fr));
-    gap:14px;
+    grid-template-columns:repeat(6, minmax(0, 1fr));
+    gap:12px;
 }
 
-.heroStatCard{
+.statCard{
     background:linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 100%);
     border:1px solid var(--border);
     border-radius:14px;
-    padding:18px;
+    padding:16px;
 }
 
-.heroStatCard .label{
+.statLabel{
     display:block;
     font-size:12px;
     text-transform:uppercase;
@@ -169,21 +165,15 @@ a{
     margin-bottom:10px;
 }
 
-.heroStatCard .value{
-    font-size:32px;
+.statValue{
+    font-size:30px;
     font-weight:800;
     line-height:1;
     color:var(--navy);
 }
 
-.heroStatCard .value.accent{
+.accentGreen{
     color:var(--green);
-}
-
-.heroStatCard .subtext{
-    margin-top:8px;
-    font-size:13px;
-    color:var(--muted);
 }
 
 .meterCard{
@@ -217,58 +207,24 @@ a{
     transition:width 0.25s ease;
 }
 
-.performanceGrid{
-    display:grid;
-    grid-template-columns:repeat(6, minmax(0, 1fr));
-    gap:12px;
-}
-
-.metricCard{
-    background:var(--surface-soft);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:14px;
-}
-
-.metricLabel{
-    display:block;
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--muted);
-    font-weight:700;
-    margin-bottom:10px;
-}
-
-.metricValue{
-    display:block;
-    font-size:24px;
-    font-weight:800;
-    color:var(--navy);
-}
-
-.recentPanel{
+.recentFormPanel{
     margin-top:16px;
     padding-top:16px;
     border-top:1px solid var(--border);
 }
 
-.recentHeader{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    gap:12px;
-    margin-bottom:12px;
+.recentFormHeader{
+    margin-bottom:10px;
 }
 
-.recentHeader h3{
-    margin:0;
-    font-size:18px;
+.recentFormHeader h3{
+    margin:0 0 4px;
+    font-size:20px;
     color:var(--navy);
 }
 
-.recentHeader p{
-    margin:4px 0 0;
+.recentFormHeader p{
+    margin:0;
     font-size:13px;
     color:var(--muted);
 }
@@ -280,7 +236,7 @@ a{
 }
 
 .formStateChip{
-    min-width:44px;
+    min-width:42px;
     padding:10px 12px;
     border-radius:999px;
     font-weight:700;
@@ -304,17 +260,84 @@ a{
     color:var(--muted);
 }
 
-.contentGrid{
+.curveSummaryGrid{
     display:grid;
-    grid-template-columns:380px minmax(0, 1fr);
-    gap:18px;
-    align-items:start;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:12px;
 }
 
-.cardPanel h2{
-    margin:0;
-    font-size:24px;
+.summaryCard{
+    background:var(--surface-soft);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+}
+
+.summaryLabel{
+    display:block;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted);
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.summaryValue{
+    display:block;
+    font-size:30px;
+    font-weight:800;
     color:var(--navy);
+}
+
+.chartCard{
+    margin-top:16px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    background:linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 100%);
+}
+
+.chartHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:12px;
+    margin-bottom:12px;
+}
+
+.chartHeader h3{
+    margin:0;
+    font-size:20px;
+    color:var(--navy);
+}
+
+.chartHeader p{
+    margin:4px 0 0;
+    font-size:13px;
+    color:var(--muted);
+}
+
+.chartWrap{
+    width:100%;
+    height:320px;
+    background:linear-gradient(180deg, rgba(31,45,61,0.03), rgba(31,45,61,0.01));
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.chartWrap svg{
+    width:100%;
+    height:100%;
+    display:block;
+}
+
+.contentGrid{
+    display:grid;
+    grid-template-columns:400px minmax(0, 1fr);
+    gap:18px;
+    align-items:start;
 }
 
 .matchForm{
@@ -336,7 +359,8 @@ a{
 }
 
 .formGroup input,
-.formGroup textarea{
+.formGroup textarea,
+.formGroup select{
     width:100%;
     padding:12px 14px;
     border:1px solid var(--border);
@@ -349,11 +373,12 @@ a{
 
 .formGroup textarea{
     resize:vertical;
-    min-height:116px;
+    min-height:106px;
 }
 
 .formGroup input:focus,
-.formGroup textarea:focus{
+.formGroup textarea:focus,
+.formGroup select:focus{
     outline:none;
     border-color:rgba(124,179,66,0.65);
     background:#FFFFFF;
@@ -368,6 +393,26 @@ a{
     margin-top:6px;
     font-size:12px;
     color:var(--muted);
+}
+
+.checkGroup{
+    justify-content:flex-end;
+    gap:8px;
+}
+
+.checkRow{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    font-weight:600;
+    color:var(--text);
+    font-size:13px;
+}
+
+.checkRow input{
+    width:auto;
+    margin-top:2px;
+    box-shadow:none;
 }
 
 .formActions{
@@ -432,8 +477,24 @@ a{
     color:var(--muted);
 }
 
-.historyPanel .panelHeader{
-    margin-bottom:14px;
+.infoNote{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:var(--surface-soft);
+    border:1px solid var(--border);
+    font-size:13px;
+    color:var(--muted);
+}
+
+.historyTop{
+    align-items:center;
+}
+
+.historyHint{
+    margin:0;
+    font-size:13px;
+    color:var(--muted);
 }
 
 .matchOutput{
@@ -472,7 +533,7 @@ a{
 
 .matchIdentity h3{
     margin:0;
-    font-size:22px;
+    font-size:24px;
     color:var(--navy);
 }
 
@@ -517,8 +578,8 @@ a{
 
 .matchMetaGrid{
     display:grid;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:12px 16px;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:14px 16px;
     padding-top:14px;
 }
 
@@ -581,7 +642,7 @@ a{
     padding:0 24px 28px;
 }
 
-.footerInner{
+.footerGrid{
     padding-top:6px;
     display:grid;
     grid-template-columns:1.2fr 0.8fr;
@@ -622,31 +683,32 @@ a{
     color:var(--navy);
 }
 
-@media (max-width: 1100px){
-    .contentGrid{
-        grid-template-columns:1fr;
+@media (max-width: 1180px){
+    .overviewCards{
+        grid-template-columns:repeat(3, minmax(0, 1fr));
     }
 
-    .performanceGrid{
-        grid-template-columns:repeat(3, 1fr);
+    .matchMetaGrid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .contentGrid{
+        grid-template-columns:1fr;
     }
 }
 
 @media (max-width: 820px){
-    .headerInner{
+    .headerRow{
         flex-direction:column;
         align-items:flex-start;
     }
 
-    .heroStatsGrid{
-        grid-template-columns:repeat(2, 1fr);
+    .curveSummaryGrid,
+    .overviewCards{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
     }
 
-    .performanceGrid{
-        grid-template-columns:repeat(2, 1fr);
-    }
-
-    .footerInner{
+    .footerGrid{
         grid-template-columns:1fr;
     }
 }
@@ -656,13 +718,11 @@ a{
         padding:24px 14px 0;
     }
 
-    .pageShell{
+    .pageGrid{
         padding:14px;
     }
 
-    .heroPanel,
-    .performancePanel,
-    .cardPanel{
+    .panel{
         padding:18px;
     }
 
@@ -671,12 +731,9 @@ a{
         overflow:auto;
     }
 
-    .matchForm{
-        grid-template-columns:1fr;
-    }
-
-    .heroStatsGrid,
-    .performanceGrid{
+    .matchForm,
+    .curveSummaryGrid,
+    .overviewCards{
         grid-template-columns:1fr;
     }
 
@@ -690,11 +747,6 @@ a{
 
     .matchCardActions{
         flex-direction:column;
-    }
-
-    .recentHeader{
-        flex-direction:column;
-        align-items:flex-start;
     }
 
     .siteFooter{
