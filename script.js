@@ -2,28 +2,22 @@ const STORAGE_KEY = "matchpoint_matches_v2";
 
 const form = document.getElementById("matchForm");
 const matchOutput = document.getElementById("matchOutput");
-
 const totalMatches = document.getElementById("totalMatches");
 const wins = document.getElementById("wins");
 const losses = document.getElementById("losses");
 const winRate = document.getElementById("winRate");
 const currentLk = document.getElementById("currentLk");
 const bestLk = document.getElementById("bestLk");
-
 const winRateInline = document.getElementById("winRateInline");
 const winRateBar = document.getElementById("winRateBar");
-
 const currentCompanion = document.getElementById("currentCompanion");
 const peakCompanion = document.getElementById("peakCompanion");
 const lastImprovement = document.getElementById("lastImprovement");
 const avgOpponentLk = document.getElementById("avgOpponentLk");
-
 const lkChart = document.getElementById("lkChart");
 const chartSubline = document.getElementById("chartSubline");
-
 const recentForm = document.getElementById("recentForm");
 const recentSummary = document.getElementById("recentSummary");
-
 const submitButton = document.getElementById("submitButton");
 const cancelEditButton = document.getElementById("cancelEditButton");
 const formMessage = document.getElementById("formMessage");
@@ -49,29 +43,16 @@ function isValidLk(value) {
 }
 
 function isValidResult(result) {
-    const pattern = /^(\d+:\d+)(\s+\d+:\d+)*$/;
-    return pattern.test(result.trim());
+    return /^(\d+:\d+)(\s+\d+:\d+)*$/.test(result.trim());
 }
 
 function parseResult(result) {
-    return result
-        .trim()
-        .split(/\s+/)
-        .map(function(setString) {
-            const [myGamesRaw, opponentGamesRaw] = setString.split(":");
-            const myGames = parseInt(myGamesRaw, 10);
-            const opponentGames = parseInt(opponentGamesRaw, 10);
-
-            if (Number.isNaN(myGames) || Number.isNaN(opponentGames)) {
-                return null;
-            }
-
-            return {
-                myGames: myGames,
-                opponentGames: opponentGames
-            };
-        })
-        .filter(Boolean);
+    return result.trim().split(/\s+/).map(setString => {
+        const [myGames, opponentGames] = setString.split(":").map(Number);
+        return Number.isNaN(myGames) || Number.isNaN(opponentGames)
+            ? null
+            : { myGames, opponentGames };
+    }).filter(Boolean);
 }
 
 function getMatchMetrics(match) {
@@ -81,15 +62,12 @@ function getMatchMetrics(match) {
     let wonGames = 0;
     let lostGames = 0;
 
-    sets.forEach(function(setData) {
+    sets.forEach(setData => {
         wonGames += setData.myGames;
         lostGames += setData.opponentGames;
 
-        if (setData.myGames > setData.opponentGames) {
-            wonSets++;
-        } else if (setData.myGames < setData.opponentGames) {
-            lostSets++;
-        }
+        if (setData.myGames > setData.opponentGames) wonSets++;
+        else if (setData.myGames < setData.opponentGames) lostSets++;
     });
 
     return {
@@ -117,29 +95,22 @@ function formatThreeDecimals(value) {
     return truncateToThreeDecimals(value).toFixed(3).replace(".", ",");
 }
 
-function formatSignedThreeDecimals(value) {
-    const prefix = value > 0 ? "+" : "";
-    return `${prefix}${formatThreeDecimals(value)}`;
-}
-
 function formatDate(dateString) {
     if (!dateString) return "-";
     const parts = dateString.split("-");
-    if (parts.length !== 3) return dateString;
-    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : dateString;
 }
 
 function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, function(char) {
-        const entityMap = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "\"": "&quot;",
-            "'": "&#039;"
-        };
-        return entityMap[char];
-    });
+    const entityMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+    };
+
+    return String(value ?? "").replace(/[&<>"']/g, char => entityMap[char]);
 }
 
 function setFormMessage(message, type = "info") {
@@ -159,92 +130,32 @@ function dateSortValue(dateString) {
     return year * 10000 + month * 100 + day;
 }
 
-function getSortedMatchesDesc() {
-    return matches
-        .map(function(match, index) {
-            return { match, originalIndex: index };
-        })
-        .sort(function(a, b) {
-            const dateDiff = dateSortValue(b.match.date) - dateSortValue(a.match.date);
-            if (dateDiff !== 0) return dateDiff;
-            return b.originalIndex - a.originalIndex;
-        });
-}
-
-/* DTB-orientierte Formel */
-
 function calculatePoints(d) {
     if (d <= -4) return 10;
-    if (d > -4 && d <= -2) {
-        return 1.25 * Math.pow(d, 3) + 15 * Math.pow(d, 2) + 60 * d + 90;
-    }
-    if (d > -2 && d <= 4) {
-        return 15 * d + 50;
-    }
-    if (d > 4 && d <= 6) {
-        return -3.75 * Math.pow(d, 2) + 45 * d - 10;
-    }
+    if (d <= -2) return 1.25 * d ** 3 + 15 * d ** 2 + 60 * d + 90;
+    if (d <= 4) return 15 * d + 50;
+    if (d <= 6) return -3.75 * d ** 2 + 45 * d - 10;
     return 125;
 }
 
 function calculateHurdle(lk) {
-    if (lk >= 10) {
-        return 10 * (30 - lk);
-    }
-
-    return 10 * (30 - lk) + (6435 / 289) * ((20 * (5 - lk) / (Math.pow(lk, 2))) + 1);
-}
-
-function getAgeFactor(ageClass) {
-    const factors = {
-        "21": 1.0,
-        "open": 1.0,
-        "30": 0.90,
-        "35": 0.85,
-        "40": 0.80,
-        "45": 0.75,
-        "50": 0.70,
-        "55": 0.65,
-        "60": 0.60,
-        "65": 0.55,
-        "70": 0.50,
-        "75": 0.45,
-        "80": 0.40,
-        "85": 0.35,
-        "90": 0.30
-    };
-
-    return factors[ageClass] ?? 1.0;
-}
-
-function calculateMotivationSurcharge(weeksInactive) {
-    const weeks = Number(weeksInactive) || 0;
-    return weeks * 0.025;
+    if (lk >= 10) return 10 * (30 - lk);
+    return 10 * (30 - lk) + (6435 / 289) * ((20 * (5 - lk) / (lk ** 2)) + 1);
 }
 
 function calculateMatchLkData(match) {
     const ownLk = parseLk(match.ownLk);
     const opponentLk = parseLk(match.opponentLk);
     const metrics = getMatchMetrics(match);
-
     const points = metrics.isWin ? calculatePoints(ownLk - opponentLk) : 0;
     const hurdle = calculateHurdle(ownLk);
-    const ageFactor = getAgeFactor(match.ageClass);
-    const teamFactor = match.teamMatch ? 1.10 : 1.0;
-    const shortSetFactor = match.shortSets ? 0.75 : 1.0;
-    const motivation = calculateMotivationSurcharge(match.weeksInactive);
+    const improvement = truncateToThreeDecimals(metrics.isWin ? (points / hurdle) : 0);
 
-    const rawImprovement = metrics.isWin ? ageFactor * teamFactor * shortSetFactor * (points / hurdle) : 0;
-    const improvement = truncateToThreeDecimals(rawImprovement);
-
-    const companionBefore = ownLk;
-    let companionAfter = companionBefore - improvement + motivation;
-
+    let companionAfter = ownLk - improvement;
     if (companionAfter < 1.5) companionAfter = 1.5;
-    if (companionAfter > 25.0) companionAfter = 25.0;
+    if (companionAfter > 25) companionAfter = 25;
 
     companionAfter = truncateToThreeDecimals(companionAfter);
-    const richtwert = truncateToOneDecimal(companionAfter);
 
     return {
         ownLk,
@@ -252,34 +163,24 @@ function calculateMatchLkData(match) {
         metrics,
         points: truncateToThreeDecimals(points),
         hurdle: truncateToThreeDecimals(hurdle),
-        ageFactor,
-        teamFactor,
-        shortSetFactor,
-        motivation: truncateToThreeDecimals(motivation),
         improvement,
-        companionBefore: truncateToThreeDecimals(companionBefore),
         companionAfter,
-        richtwert,
+        richtwert: truncateToOneDecimal(companionAfter),
         isWin: metrics.isWin
     };
 }
 
 function getComputedHistoryChronological() {
     return matches
-        .map(function(match, index) {
-            return { match, originalIndex: index };
-        })
-        .sort(function(a, b) {
+        .map((match, index) => ({ match, originalIndex: index }))
+        .sort((a, b) => {
             const dateDiff = dateSortValue(a.match.date) - dateSortValue(b.match.date);
-            if (dateDiff !== 0) return dateDiff;
-            return a.originalIndex - b.originalIndex;
+            return dateDiff !== 0 ? dateDiff : a.originalIndex - b.originalIndex;
         })
-        .map(function(item) {
-            return {
-                ...item,
-                computed: calculateMatchLkData(item.match)
-            };
-        });
+        .map(item => ({
+            ...item,
+            computed: calculateMatchLkData(item.match)
+        }));
 }
 
 function renderChart(history) {
@@ -303,30 +204,24 @@ function renderChart(history) {
     let minVal = Math.min(...values);
     let maxVal = Math.max(...values);
 
-    if (maxVal === minVal) {
-        maxVal += 0.5;
+    if (minVal === maxVal) {
         minVal -= 0.5;
+        maxVal += 0.5;
     }
 
-    const getX = function(index) {
-        if (history.length === 1) {
-            return padding.left + plotWidth / 2;
-        }
-        return padding.left + (plotWidth * index) / (history.length - 1);
-    };
+    const getX = index =>
+        history.length === 1
+            ? padding.left + plotWidth / 2
+            : padding.left + (plotWidth * index) / (history.length - 1);
 
-    // niedriger = besser -> optisch höher darstellen
-    const getY = function(value) {
-        return padding.top + ((value - minVal) / (maxVal - minVal)) * plotHeight;
-    };
+    const getY = value =>
+        padding.top + ((value - minVal) / (maxVal - minVal)) * plotHeight;
 
-    const points = history.map(function(entry, index) {
-        return {
-            x: getX(index),
-            y: getY(entry.computed.companionAfter),
-            value: entry.computed.companionAfter
-        };
-    });
+    const points = history.map((entry, index) => ({
+        x: getX(index),
+        y: getY(entry.computed.companionAfter),
+        value: entry.computed.companionAfter
+    }));
 
     const linePoints = points.map(point => `${point.x},${point.y}`).join(" ");
     const areaPath = [
@@ -336,13 +231,9 @@ function renderChart(history) {
         "Z"
     ].join(" ");
 
-    const gridValues = [
-        minVal,
-        minVal + (maxVal - minVal) / 2,
-        maxVal
-    ];
+    const gridValues = [minVal, minVal + (maxVal - minVal) / 2, maxVal];
 
-    const gridLines = gridValues.map(function(value) {
+    const gridLines = gridValues.map(value => {
         const y = getY(value);
         return `
             <line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="#E5E7EB" stroke-width="1" />
@@ -352,12 +243,9 @@ function renderChart(history) {
         `;
     }).join("");
 
-    const dots = points.map(function(point, index) {
-        const isLast = index === points.length - 1;
-        return `
-            <circle cx="${point.x}" cy="${point.y}" r="${isLast ? 5 : 4}" fill="${isLast ? "#7CB342" : "#1F2D3D"}"></circle>
-        `;
-    }).join("");
+    const dots = points.map((point, index) => `
+        <circle cx="${point.x}" cy="${point.y}" r="${index === points.length - 1 ? 5 : 4}" fill="${index === points.length - 1 ? "#7CB342" : "#1F2D3D"}"></circle>
+    `).join("");
 
     const lastPoint = points[points.length - 1];
 
@@ -368,13 +256,10 @@ function renderChart(history) {
                 <stop offset="100%" stop-color="rgba(124,179,66,0.02)"></stop>
             </linearGradient>
         </defs>
-
         ${gridLines}
-
         <path d="${areaPath}" fill="url(#curveAreaGradient)"></path>
         <polyline points="${linePoints}" fill="none" stroke="#7CB342" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
         ${dots}
-
         <text x="${lastPoint.x}" y="${lastPoint.y - 14}" text-anchor="middle" fill="#1F2D3D" font-size="12" font-family="Arial" font-weight="700">
             ${formatOneDecimal(lastPoint.value)}
         </text>
@@ -386,11 +271,10 @@ function renderChart(history) {
 function updateDashboard() {
     const historyChronological = getComputedHistoryChronological();
     const historyDesc = [...historyChronological].reverse();
-
     const total = historyChronological.length;
     const winCount = historyChronological.filter(entry => entry.computed.isWin).length;
     const lossCount = total - winCount;
-    const rate = total > 0 ? Math.round((winCount / total) * 100) : 0;
+    const rate = total ? Math.round((winCount / total) * 100) : 0;
 
     totalMatches.textContent = total;
     wins.textContent = winCount;
@@ -399,7 +283,7 @@ function updateDashboard() {
     winRateInline.textContent = `${rate}%`;
     winRateBar.style.width = `${rate}%`;
 
-    if (!historyChronological.length) {
+    if (!total) {
         currentLk.textContent = "24,0";
         bestLk.textContent = "24,0";
         currentCompanion.textContent = "24,000";
@@ -413,30 +297,27 @@ function updateDashboard() {
     }
 
     const latest = historyDesc[0].computed;
-    const bestCompanion = Math.min(...historyChronological.map(entry => entry.computed.companionAfter));
-    const avgOpp = historyChronological.reduce((sum, entry) => sum + entry.computed.opponentLk, 0) / historyChronological.length;
-
-    currentLk.textContent = formatOneDecimal(latest.richtwert);
-    bestLk.textContent = formatOneDecimal(bestCompanion);
-    currentCompanion.textContent = formatThreeDecimals(latest.companionAfter);
-    peakCompanion.textContent = formatThreeDecimals(bestCompanion);
-    lastImprovement.textContent = formatThreeDecimals(latest.improvement);
-    avgOpponentLk.textContent = formatOneDecimal(avgOpp);
-
+    const bestCompanionValue = Math.min(...historyChronological.map(entry => entry.computed.companionAfter));
+    const avgOpp = historyChronological.reduce((sum, entry) => sum + entry.computed.opponentLk, 0) / total;
     const recentMatches = historyDesc.slice(0, 5);
     const recentWins = recentMatches.filter(entry => entry.computed.isWin).length;
 
+    currentLk.textContent = formatOneDecimal(latest.richtwert);
+    bestLk.textContent = formatOneDecimal(bestCompanionValue);
+    currentCompanion.textContent = formatThreeDecimals(latest.companionAfter);
+    peakCompanion.textContent = formatThreeDecimals(bestCompanionValue);
+    lastImprovement.textContent = formatThreeDecimals(latest.improvement);
+    avgOpponentLk.textContent = formatOneDecimal(avgOpp);
     recentSummary.textContent = `${recentWins} Siege / ${recentMatches.length - recentWins} Niederlagen in den letzten ${recentMatches.length} Matches`;
-    recentForm.innerHTML = recentMatches.map(function(entry) {
-        return `<span class="formStateChip ${entry.computed.isWin ? "win" : "loss"}">${entry.computed.isWin ? "W" : "L"}</span>`;
-    }).join("");
+    recentForm.innerHTML = recentMatches
+        .map(entry => `<span class="formStateChip ${entry.computed.isWin ? "win" : "loss"}">${entry.computed.isWin ? "W" : "L"}</span>`)
+        .join("");
 
     renderChart(historyChronological);
 }
 
 function renderMatches() {
     matchOutput.innerHTML = "";
-
     const ordered = getComputedHistoryChronological().reverse();
 
     if (!ordered.length) {
@@ -445,14 +326,12 @@ function renderMatches() {
         return;
     }
 
-    ordered.forEach(function(entry) {
+    ordered.forEach(entry => {
         const match = entry.match;
         const index = entry.originalIndex;
         const data = entry.computed;
-
         const statusClass = data.isWin ? "win" : "loss";
         const statusText = data.isWin ? "Sieg" : "Niederlage";
-
         const card = document.createElement("li");
 
         card.innerHTML = `
@@ -462,7 +341,6 @@ function renderMatches() {
                         <h3>${escapeHtml(match.opponent)}</h3>
                         <p class="matchDate">${formatDate(match.date)}</p>
                     </div>
-
                     <div class="matchHeaderBadges">
                         <span class="statusBadge ${statusClass}">${statusText}</span>
                         <span class="scoreBadge">${escapeHtml(match.result)}</span>
@@ -474,47 +352,22 @@ function renderMatches() {
                         <span class="metaLabel">Eigene LK</span>
                         <span class="metaValue">${formatOneDecimal(data.ownLk)}</span>
                     </div>
-
                     <div class="metaItem">
                         <span class="metaLabel">Gegner-LK</span>
                         <span class="metaValue">${formatOneDecimal(data.opponentLk)}</span>
                     </div>
-
                     <div class="metaItem">
                         <span class="metaLabel">Punkte P</span>
                         <span class="metaValue">${formatThreeDecimals(data.points)}</span>
                     </div>
-
-                    <div class="metaItem">
-                        <span class="metaLabel">Hürde H</span>
-                        <span class="metaValue">${formatThreeDecimals(data.hurdle)}</span>
-                    </div>
-
-                    <div class="metaItem">
-                        <span class="metaLabel">Altersfaktor</span>
-                        <span class="metaValue">${data.ageFactor.toFixed(2).replace(".", ",")}</span>
-                    </div>
-
                     <div class="metaItem">
                         <span class="metaLabel">Verbesserung</span>
                         <span class="metaValue">${formatThreeDecimals(data.improvement)} LK</span>
                     </div>
-
-                    <div class="metaItem">
-                        <span class="metaLabel">Begleitwert neu</span>
-                        <span class="metaValue">${formatThreeDecimals(data.companionAfter)}</span>
-                    </div>
-
-                    <div class="metaItem">
-                        <span class="metaLabel">Richtwert neu</span>
-                        <span class="metaValue">${formatOneDecimal(data.richtwert)}</span>
-                    </div>
-
                     <div class="metaItem">
                         <span class="metaLabel">Spielort</span>
                         <span class="metaValue">${escapeHtml(match.location || "Nicht angegeben")}</span>
                     </div>
-
                     <div class="metaItem">
                         <span class="metaLabel">Kommentar</span>
                         <span class="metaValue">${escapeHtml(match.comment || "Kein Kommentar")}</span>
@@ -531,8 +384,8 @@ function renderMatches() {
         matchOutput.appendChild(card);
     });
 
-    document.querySelectorAll(".deleteButton").forEach(function(button) {
-        button.addEventListener("click", function() {
+    document.querySelectorAll(".deleteButton").forEach(button => {
+        button.addEventListener("click", () => {
             const index = Number(button.getAttribute("data-index"));
 
             if (editIndex !== null) {
@@ -541,7 +394,7 @@ function renderMatches() {
                     resetEditMode();
                     setFormMessage("Bearbeitung wurde zurückgesetzt, weil das Match gelöscht wurde.", "info");
                 } else if (editIndex > index) {
-                    editIndex = editIndex - 1;
+                    editIndex--;
                 }
             }
 
@@ -551,8 +404,8 @@ function renderMatches() {
         });
     });
 
-    document.querySelectorAll(".editButton").forEach(function(button) {
-        button.addEventListener("click", function() {
+    document.querySelectorAll(".editButton").forEach(button => {
+        button.addEventListener("click", () => {
             const index = Number(button.getAttribute("data-index"));
             const match = matches[index];
 
@@ -560,12 +413,8 @@ function renderMatches() {
             document.getElementById("date").value = match.date;
             document.getElementById("ownLk").value = String(match.ownLk).replace(".", ",");
             document.getElementById("opponentLk").value = String(match.opponentLk).replace(".", ",");
-            document.getElementById("ageClass").value = match.ageClass;
             document.getElementById("result").value = match.result;
-            document.getElementById("weeksInactive").value = match.weeksInactive;
             document.getElementById("location").value = match.location;
-            document.getElementById("teamMatch").checked = Boolean(match.teamMatch);
-            document.getElementById("shortSets").checked = Boolean(match.shortSets);
             document.getElementById("comment").value = match.comment;
 
             editIndex = index;
@@ -583,25 +432,21 @@ function renderMatches() {
     updateDashboard();
 }
 
-cancelEditButton.addEventListener("click", function() {
+cancelEditButton.addEventListener("click", () => {
     form.reset();
     resetEditMode();
     setFormMessage("Bearbeitung abgebrochen.", "info");
 });
 
-form.addEventListener("submit", function(event) {
+form.addEventListener("submit", event => {
     event.preventDefault();
 
     const opponent = document.getElementById("opponent").value.trim();
     const date = document.getElementById("date").value;
     const ownLk = document.getElementById("ownLk").value.trim();
     const opponentLk = document.getElementById("opponentLk").value.trim();
-    const ageClass = document.getElementById("ageClass").value;
     const result = document.getElementById("result").value.trim();
-    const weeksInactive = document.getElementById("weeksInactive").value.trim();
     const location = document.getElementById("location").value.trim();
-    const teamMatch = document.getElementById("teamMatch").checked;
-    const shortSets = document.getElementById("shortSets").checked;
     const comment = document.getElementById("comment").value.trim();
 
     if (!isValidLk(ownLk)) {
@@ -627,12 +472,8 @@ form.addEventListener("submit", function(event) {
         date,
         ownLk: normalizeCommaNumber(ownLk),
         opponentLk: normalizeCommaNumber(opponentLk),
-        ageClass,
         result,
-        weeksInactive: Number(weeksInactive || 0),
         location,
-        teamMatch,
-        shortSets,
         comment
     };
 
