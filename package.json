@@ -1,0 +1,25 @@
+{
+  "name": "matchpoint",
+  "version": "1.0.0",
+  "description": "MatchPoint ist eine einfache Webanwendung zum Erfassen und Verwalten von Tennismatches.  \r Nutzer können gespielte Matches dokumentieren, Ergebnisse speichern und ihre persönliche Matchhistorie übersichtlich nachverfolgen.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reefall/MatchPoint.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/reefall/MatchPoint/issues"
+  },
+  "homepage": "https://github.com/reefall/MatchPoint#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "sqlite3": "^6.0.1"
+  }
+}

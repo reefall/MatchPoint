@@ -1,5 +1,3 @@
-const STORAGE_KEY = "matchpoint_matches_v2";
-
 const form = document.getElementById("matchForm");
 const matchOutput = document.getElementById("matchOutput");
 const totalMatches = document.getElementById("totalMatches");
@@ -22,11 +20,26 @@ const submitButton = document.getElementById("submitButton");
 const cancelEditButton = document.getElementById("cancelEditButton");
 const formMessage = document.getElementById("formMessage");
 
-let matches = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-let editIndex = null;
+let matches = [];
+let editId = null;
 
-function saveMatches() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(matches));
+async function loadMatches() {
+    try {
+        const response = await fetch("/api/matches");
+
+        if (!response.ok) {
+            throw new Error("Matches konnten nicht geladen werden.");
+        }
+
+        matches = await response.json();
+        renderMatches();
+    } catch (error) {
+        console.error(error);
+        setFormMessage(
+            "Die Matches konnten nicht vom Server geladen werden.",
+            "error"
+        );
+    }
 }
 
 function normalizeCommaNumber(value) {
@@ -47,16 +60,32 @@ function isValidResult(result) {
 }
 
 function parseResult(result) {
-    return result.trim().split(/\s+/).map(setString => {
-        const [myGames, opponentGames] = setString.split(":").map(Number);
-        return Number.isNaN(myGames) || Number.isNaN(opponentGames)
-            ? null
-            : { myGames, opponentGames };
-    }).filter(Boolean);
+    return result
+        .trim()
+        .split(/\s+/)
+        .map(setString => {
+            const [myGames, opponentGames] = setString
+                .split(":")
+                .map(Number);
+
+            if (
+                Number.isNaN(myGames) ||
+                Number.isNaN(opponentGames)
+            ) {
+                return null;
+            }
+
+            return {
+                myGames,
+                opponentGames
+            };
+        })
+        .filter(Boolean);
 }
 
 function getMatchMetrics(match) {
     const sets = parseResult(match.result);
+
     let wonSets = 0;
     let lostSets = 0;
     let wonGames = 0;
@@ -66,8 +95,11 @@ function getMatchMetrics(match) {
         wonGames += setData.myGames;
         lostGames += setData.opponentGames;
 
-        if (setData.myGames > setData.opponentGames) wonSets++;
-        else if (setData.myGames < setData.opponentGames) lostSets++;
+        if (setData.myGames > setData.opponentGames) {
+            wonSets++;
+        } else if (setData.myGames < setData.opponentGames) {
+            lostSets++;
+        }
     });
 
     return {
@@ -88,17 +120,29 @@ function truncateToThreeDecimals(value) {
 }
 
 function formatOneDecimal(value) {
-    return truncateToOneDecimal(value).toFixed(1).replace(".", ",");
+    return truncateToOneDecimal(value)
+        .toFixed(1)
+        .replace(".", ",");
 }
 
 function formatThreeDecimals(value) {
-    return truncateToThreeDecimals(value).toFixed(3).replace(".", ",");
+    return truncateToThreeDecimals(value)
+        .toFixed(3)
+        .replace(".", ",");
 }
 
 function formatDate(dateString) {
-    if (!dateString) return "-";
+    if (!dateString) {
+        return "-";
+    }
+
     const parts = dateString.split("-");
-    return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : dateString;
+
+    if (parts.length === 3) {
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+
+    return dateString;
 }
 
 function escapeHtml(value) {
@@ -110,7 +154,10 @@ function escapeHtml(value) {
         "'": "&#039;"
     };
 
-    return String(value ?? "").replace(/[&<>"']/g, char => entityMap[char]);
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        character => entityMap[character]
+    );
 }
 
 function setFormMessage(message, type = "info") {
@@ -119,41 +166,88 @@ function setFormMessage(message, type = "info") {
 }
 
 function resetEditMode() {
-    editIndex = null;
+    editId = null;
     submitButton.textContent = "Match speichern";
     cancelEditButton.classList.add("hidden");
 }
 
 function dateSortValue(dateString) {
-    if (!dateString) return 0;
-    const [year, month, day] = dateString.split("-").map(Number);
+    if (!dateString) {
+        return 0;
+    }
+
+    const [year, month, day] = dateString
+        .split("-")
+        .map(Number);
+
     return year * 10000 + month * 100 + day;
 }
 
-function calculatePoints(d) {
-    if (d <= -4) return 10;
-    if (d <= -2) return 1.25 * d ** 3 + 15 * d ** 2 + 60 * d + 90;
-    if (d <= 4) return 15 * d + 50;
-    if (d <= 6) return -3.75 * d ** 2 + 45 * d - 10;
+function calculatePoints(difference) {
+    if (difference <= -4) {
+        return 10;
+    }
+
+    if (difference <= -2) {
+        return (
+            1.25 * difference ** 3 +
+            15 * difference ** 2 +
+            60 * difference +
+            90
+        );
+    }
+
+    if (difference <= 4) {
+        return 15 * difference + 50;
+    }
+
+    if (difference <= 6) {
+        return (
+            -3.75 * difference ** 2 +
+            45 * difference -
+            10
+        );
+    }
+
     return 125;
 }
 
 function calculateHurdle(lk) {
-    if (lk >= 10) return 10 * (30 - lk);
-    return 10 * (30 - lk) + (6435 / 289) * ((20 * (5 - lk) / (lk ** 2)) + 1);
+    if (lk >= 10) {
+        return 10 * (30 - lk);
+    }
+
+    return (
+        10 * (30 - lk) +
+        (6435 / 289) *
+        ((20 * (5 - lk) / (lk ** 2)) + 1)
+    );
 }
 
 function calculateMatchLkData(match) {
     const ownLk = parseLk(match.ownLk);
     const opponentLk = parseLk(match.opponentLk);
     const metrics = getMatchMetrics(match);
-    const points = metrics.isWin ? calculatePoints(ownLk - opponentLk) : 0;
+
+    const points = metrics.isWin
+        ? calculatePoints(ownLk - opponentLk)
+        : 0;
+
     const hurdle = calculateHurdle(ownLk);
-    const improvement = truncateToThreeDecimals(metrics.isWin ? (points / hurdle) : 0);
+
+    const improvement = truncateToThreeDecimals(
+        metrics.isWin ? points / hurdle : 0
+    );
 
     let companionAfter = ownLk - improvement;
-    if (companionAfter < 1.5) companionAfter = 1.5;
-    if (companionAfter > 25) companionAfter = 25;
+
+    if (companionAfter < 1.5) {
+        companionAfter = 1.5;
+    }
+
+    if (companionAfter > 25) {
+        companionAfter = 25;
+    }
 
     companionAfter = truncateToThreeDecimals(companionAfter);
 
@@ -172,50 +266,91 @@ function calculateMatchLkData(match) {
 
 function getComputedHistoryChronological() {
     return matches
-        .map((match, index) => ({ match, originalIndex: index }))
+        .map(match => ({
+            match,
+            computed: calculateMatchLkData(match)
+        }))
         .sort((a, b) => {
-            const dateDiff = dateSortValue(a.match.date) - dateSortValue(b.match.date);
-            return dateDiff !== 0 ? dateDiff : a.originalIndex - b.originalIndex;
-        })
-        .map(item => ({
-            ...item,
-            computed: calculateMatchLkData(item.match)
-        }));
+            const dateDifference =
+                dateSortValue(a.match.date) -
+                dateSortValue(b.match.date);
+
+            if (dateDifference !== 0) {
+                return dateDifference;
+            }
+
+            return Number(a.match.id) - Number(b.match.id);
+        });
 }
 
 function renderChart(history) {
     if (!history.length) {
         lkChart.innerHTML = `
-            <text x="500" y="160" text-anchor="middle" fill="#6B7280" font-size="16" font-family="Arial">
+            <text
+                x="500"
+                y="160"
+                text-anchor="middle"
+                fill="#6B7280"
+                font-size="16"
+                font-family="Arial"
+            >
                 Noch keine Daten für die LK-Kurve vorhanden.
             </text>
         `;
-        chartSubline.textContent = "Die Kurve erscheint, sobald Matches gespeichert sind.";
+
+        chartSubline.textContent =
+            "Die Kurve erscheint, sobald Matches gespeichert sind.";
+
         return;
     }
 
     const width = 1000;
     const height = 320;
-    const padding = { top: 24, right: 30, bottom: 34, left: 56 };
-    const plotWidth = width - padding.left - padding.right;
-    const plotHeight = height - padding.top - padding.bottom;
 
-    const values = history.map(entry => entry.computed.companionAfter);
-    let minVal = Math.min(...values);
-    let maxVal = Math.max(...values);
+    const padding = {
+        top: 24,
+        right: 30,
+        bottom: 34,
+        left: 56
+    };
 
-    if (minVal === maxVal) {
-        minVal -= 0.5;
-        maxVal += 0.5;
+    const plotWidth =
+        width - padding.left - padding.right;
+
+    const plotHeight =
+        height - padding.top - padding.bottom;
+
+    const values = history.map(
+        entry => entry.computed.companionAfter
+    );
+
+    let minValue = Math.min(...values);
+    let maxValue = Math.max(...values);
+
+    if (minValue === maxValue) {
+        minValue -= 0.5;
+        maxValue += 0.5;
     }
 
-    const getX = index =>
-        history.length === 1
-            ? padding.left + plotWidth / 2
-            : padding.left + (plotWidth * index) / (history.length - 1);
+    function getX(index) {
+        if (history.length === 1) {
+            return padding.left + plotWidth / 2;
+        }
 
-    const getY = value =>
-        padding.top + ((value - minVal) / (maxVal - minVal)) * plotHeight;
+        return (
+            padding.left +
+            (plotWidth * index) / (history.length - 1)
+        );
+    }
+
+    function getY(value) {
+        return (
+            padding.top +
+            ((value - minValue) /
+                (maxValue - minValue)) *
+            plotHeight
+        );
+    }
 
     const points = history.map((entry, index) => ({
         x: getX(index),
@@ -223,58 +358,146 @@ function renderChart(history) {
         value: entry.computed.companionAfter
     }));
 
-    const linePoints = points.map(point => `${point.x},${point.y}`).join(" ");
+    const linePoints = points
+        .map(point => `${point.x},${point.y}`)
+        .join(" ");
+
     const areaPath = [
         `M ${points[0].x} ${padding.top + plotHeight}`,
-        ...points.map(point => `L ${point.x} ${point.y}`),
+        ...points.map(
+            point => `L ${point.x} ${point.y}`
+        ),
         `L ${points[points.length - 1].x} ${padding.top + plotHeight}`,
         "Z"
     ].join(" ");
 
-    const gridValues = [minVal, minVal + (maxVal - minVal) / 2, maxVal];
+    const gridValues = [
+        minValue,
+        minValue + (maxValue - minValue) / 2,
+        maxValue
+    ];
 
-    const gridLines = gridValues.map(value => {
-        const y = getY(value);
-        return `
-            <line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="#E5E7EB" stroke-width="1" />
-            <text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" fill="#6B7280" font-size="12" font-family="Arial">
-                ${formatOneDecimal(value)}
-            </text>
-        `;
-    }).join("");
+    const gridLines = gridValues
+        .map(value => {
+            const y = getY(value);
 
-    const dots = points.map((point, index) => `
-        <circle cx="${point.x}" cy="${point.y}" r="${index === points.length - 1 ? 5 : 4}" fill="${index === points.length - 1 ? "#7CB342" : "#1F2D3D"}"></circle>
-    `).join("");
+            return `
+                <line
+                    x1="${padding.left}"
+                    y1="${y}"
+                    x2="${width - padding.right}"
+                    y2="${y}"
+                    stroke="#E5E7EB"
+                    stroke-width="1"
+                />
+
+                <text
+                    x="${padding.left - 10}"
+                    y="${y + 4}"
+                    text-anchor="end"
+                    fill="#6B7280"
+                    font-size="12"
+                    font-family="Arial"
+                >
+                    ${formatOneDecimal(value)}
+                </text>
+            `;
+        })
+        .join("");
+
+    const dots = points
+        .map((point, index) => {
+            const isLastPoint =
+                index === points.length - 1;
+
+            return `
+                <circle
+                    cx="${point.x}"
+                    cy="${point.y}"
+                    r="${isLastPoint ? 5 : 4}"
+                    fill="${isLastPoint ? "#7CB342" : "#1F2D3D"}"
+                ></circle>
+            `;
+        })
+        .join("");
 
     const lastPoint = points[points.length - 1];
 
     lkChart.innerHTML = `
         <defs>
-            <linearGradient id="curveAreaGradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="rgba(124,179,66,0.30)"></stop>
-                <stop offset="100%" stop-color="rgba(124,179,66,0.02)"></stop>
+            <linearGradient
+                id="curveAreaGradient"
+                x1="0"
+                x2="0"
+                y1="0"
+                y2="1"
+            >
+                <stop
+                    offset="0%"
+                    stop-color="rgba(124,179,66,0.30)"
+                ></stop>
+
+                <stop
+                    offset="100%"
+                    stop-color="rgba(124,179,66,0.02)"
+                ></stop>
             </linearGradient>
         </defs>
+
         ${gridLines}
-        <path d="${areaPath}" fill="url(#curveAreaGradient)"></path>
-        <polyline points="${linePoints}" fill="none" stroke="#7CB342" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+
+        <path
+            d="${areaPath}"
+            fill="url(#curveAreaGradient)"
+        ></path>
+
+        <polyline
+            points="${linePoints}"
+            fill="none"
+            stroke="#7CB342"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        ></polyline>
+
         ${dots}
-        <text x="${lastPoint.x}" y="${lastPoint.y - 14}" text-anchor="middle" fill="#1F2D3D" font-size="12" font-family="Arial" font-weight="700">
+
+        <text
+            x="${lastPoint.x}"
+            y="${lastPoint.y - 14}"
+            text-anchor="middle"
+            fill="#1F2D3D"
+            font-size="12"
+            font-family="Arial"
+            font-weight="700"
+        >
             ${formatOneDecimal(lastPoint.value)}
         </text>
     `;
 
-    chartSubline.textContent = `Begleitwert-Verlauf über ${history.length} gespeicherte Matches.`;
+    chartSubline.textContent =
+        `Begleitwert-Verlauf über ${history.length} gespeicherte Matches.`;
 }
 
 function updateDashboard() {
-    const historyChronological = getComputedHistoryChronological();
-    const historyDesc = [...historyChronological].reverse();
+    const historyChronological =
+        getComputedHistoryChronological();
+
+    const historyDescending = [
+        ...historyChronological
+    ].reverse();
+
     const total = historyChronological.length;
-    const winCount = historyChronological.filter(entry => entry.computed.isWin).length;
+
+    const winCount = historyChronological.filter(
+        entry => entry.computed.isWin
+    ).length;
+
     const lossCount = total - winCount;
-    const rate = total ? Math.round((winCount / total) * 100) : 0;
+
+    const rate = total
+        ? Math.round((winCount / total) * 100)
+        : 0;
 
     totalMatches.textContent = total;
     wins.textContent = winCount;
@@ -291,26 +514,82 @@ function updateDashboard() {
         lastImprovement.textContent = "0,000";
         avgOpponentLk.textContent = "-";
         recentSummary.textContent = "Noch keine Daten vorhanden.";
-        recentForm.innerHTML = `<span class="formStateChip neutral">Keine Matches</span>`;
+
+        recentForm.innerHTML = `
+            <span class="formStateChip neutral">
+                Keine Matches
+            </span>
+        `;
+
         renderChart([]);
         return;
     }
 
-    const latest = historyDesc[0].computed;
-    const bestCompanionValue = Math.min(...historyChronological.map(entry => entry.computed.companionAfter));
-    const avgOpp = historyChronological.reduce((sum, entry) => sum + entry.computed.opponentLk, 0) / total;
-    const recentMatches = historyDesc.slice(0, 5);
-    const recentWins = recentMatches.filter(entry => entry.computed.isWin).length;
+    const latest = historyDescending[0].computed;
 
-    currentLk.textContent = formatOneDecimal(latest.richtwert);
-    bestLk.textContent = formatOneDecimal(bestCompanionValue);
-    currentCompanion.textContent = formatThreeDecimals(latest.companionAfter);
-    peakCompanion.textContent = formatThreeDecimals(bestCompanionValue);
-    lastImprovement.textContent = formatThreeDecimals(latest.improvement);
-    avgOpponentLk.textContent = formatOneDecimal(avgOpp);
-    recentSummary.textContent = `${recentWins} Siege / ${recentMatches.length - recentWins} Niederlagen in den letzten ${recentMatches.length} Matches`;
+    const bestCompanionValue = Math.min(
+        ...historyChronological.map(
+            entry => entry.computed.companionAfter
+        )
+    );
+
+    const averageOpponentLk =
+        historyChronological.reduce(
+            (sum, entry) =>
+                sum + entry.computed.opponentLk,
+            0
+        ) / total;
+
+    const recentMatches =
+        historyDescending.slice(0, 5);
+
+    const recentWins = recentMatches.filter(
+        entry => entry.computed.isWin
+    ).length;
+
+    currentLk.textContent =
+        formatOneDecimal(latest.richtwert);
+
+    bestLk.textContent =
+        formatOneDecimal(bestCompanionValue);
+
+    currentCompanion.textContent =
+        formatThreeDecimals(latest.companionAfter);
+
+    peakCompanion.textContent =
+        formatThreeDecimals(bestCompanionValue);
+
+    lastImprovement.textContent =
+        formatThreeDecimals(latest.improvement);
+
+    avgOpponentLk.textContent =
+        formatOneDecimal(averageOpponentLk);
+
+    recentSummary.textContent =
+        `${recentWins} Siege / ${
+            recentMatches.length - recentWins
+        } Niederlagen in den letzten ${
+            recentMatches.length
+        } Matches`;
+
     recentForm.innerHTML = recentMatches
-        .map(entry => `<span class="formStateChip ${entry.computed.isWin ? "win" : "loss"}">${entry.computed.isWin ? "W" : "L"}</span>`)
+        .map(entry => {
+            const stateClass =
+                entry.computed.isWin
+                    ? "win"
+                    : "loss";
+
+            const stateText =
+                entry.computed.isWin
+                    ? "W"
+                    : "L";
+
+            return `
+                <span class="formStateChip ${stateClass}">
+                    ${stateText}
+                </span>
+            `;
+        })
         .join("");
 
     renderChart(historyChronological);
@@ -318,20 +597,31 @@ function updateDashboard() {
 
 function renderMatches() {
     matchOutput.innerHTML = "";
-    const ordered = getComputedHistoryChronological().reverse();
+
+    const ordered =
+        getComputedHistoryChronological().reverse();
 
     if (!ordered.length) {
-        matchOutput.innerHTML = `<li class="emptyState">Noch keine Matches gespeichert.</li>`;
+        matchOutput.innerHTML = `
+            <li class="emptyState">
+                Noch keine Matches gespeichert.
+            </li>
+        `;
+
         updateDashboard();
         return;
     }
 
     ordered.forEach(entry => {
         const match = entry.match;
-        const index = entry.originalIndex;
         const data = entry.computed;
-        const statusClass = data.isWin ? "win" : "loss";
-        const statusText = data.isWin ? "Sieg" : "Niederlage";
+
+        const statusClass =
+            data.isWin ? "win" : "loss";
+
+        const statusText =
+            data.isWin ? "Sieg" : "Niederlage";
+
         const card = document.createElement("li");
 
         card.innerHTML = `
@@ -339,44 +629,84 @@ function renderMatches() {
                 <div class="matchCardTop">
                     <div class="matchIdentity">
                         <h3>${escapeHtml(match.opponent)}</h3>
-                        <p class="matchDate">${formatDate(match.date)}</p>
+                        <p class="matchDate">
+                            ${formatDate(match.date)}
+                        </p>
                     </div>
+
                     <div class="matchHeaderBadges">
-                        <span class="statusBadge ${statusClass}">${statusText}</span>
-                        <span class="scoreBadge">${escapeHtml(match.result)}</span>
+                        <span class="statusBadge ${statusClass}">
+                            ${statusText}
+                        </span>
+
+                        <span class="scoreBadge">
+                            ${escapeHtml(match.result)}
+                        </span>
                     </div>
                 </div>
 
                 <div class="matchMetaGrid">
                     <div class="metaItem">
                         <span class="metaLabel">Eigene LK</span>
-                        <span class="metaValue">${formatOneDecimal(data.ownLk)}</span>
+                        <span class="metaValue">
+                            ${formatOneDecimal(data.ownLk)}
+                        </span>
                     </div>
+
                     <div class="metaItem">
                         <span class="metaLabel">Gegner-LK</span>
-                        <span class="metaValue">${formatOneDecimal(data.opponentLk)}</span>
+                        <span class="metaValue">
+                            ${formatOneDecimal(data.opponentLk)}
+                        </span>
                     </div>
+
                     <div class="metaItem">
                         <span class="metaLabel">Punkte P</span>
-                        <span class="metaValue">${formatThreeDecimals(data.points)}</span>
+                        <span class="metaValue">
+                            ${formatThreeDecimals(data.points)}
+                        </span>
                     </div>
+
                     <div class="metaItem">
                         <span class="metaLabel">Verbesserung</span>
-                        <span class="metaValue">${formatThreeDecimals(data.improvement)} LK</span>
+                        <span class="metaValue">
+                            ${formatThreeDecimals(data.improvement)} LK
+                        </span>
                     </div>
+
                     <div class="metaItem">
                         <span class="metaLabel">Spielort</span>
-                        <span class="metaValue">${escapeHtml(match.location || "Nicht angegeben")}</span>
+                        <span class="metaValue">
+                            ${escapeHtml(
+                                match.location || "Nicht angegeben"
+                            )}
+                        </span>
                     </div>
+
                     <div class="metaItem">
                         <span class="metaLabel">Kommentar</span>
-                        <span class="metaValue">${escapeHtml(match.comment || "Kein Kommentar")}</span>
+                        <span class="metaValue">
+                            ${escapeHtml(
+                                match.comment || "Kein Kommentar"
+                            )}
+                        </span>
                     </div>
                 </div>
 
                 <div class="matchCardActions">
-                    <button class="editButton" data-index="${index}">Bearbeiten</button>
-                    <button class="deleteButton" data-index="${index}">Löschen</button>
+                    <button
+                        class="editButton"
+                        data-id="${match.id}"
+                    >
+                        Bearbeiten
+                    </button>
+
+                    <button
+                        class="deleteButton"
+                        data-id="${match.id}"
+                    >
+                        Löschen
+                    </button>
                 </div>
             </article>
         `;
@@ -384,43 +714,63 @@ function renderMatches() {
         matchOutput.appendChild(card);
     });
 
-    document.querySelectorAll(".deleteButton").forEach(button => {
-        button.addEventListener("click", () => {
-            const index = Number(button.getAttribute("data-index"));
+    addEditButtonEvents();
+    addDeleteButtonEvents();
+    updateDashboard();
+}
 
-            if (editIndex !== null) {
-                if (editIndex === index) {
-                    form.reset();
-                    resetEditMode();
-                    setFormMessage("Bearbeitung wurde zurückgesetzt, weil das Match gelöscht wurde.", "info");
-                } else if (editIndex > index) {
-                    editIndex--;
-                }
+function addEditButtonEvents() {
+    const editButtons =
+        document.querySelectorAll(".editButton");
+
+    editButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const id = Number(button.dataset.id);
+
+            const match = matches.find(
+                item => Number(item.id) === id
+            );
+
+            if (!match) {
+                setFormMessage(
+                    "Das Match wurde nicht gefunden.",
+                    "error"
+                );
+                return;
             }
 
-            matches.splice(index, 1);
-            saveMatches();
-            renderMatches();
-        });
-    });
+            document.getElementById("opponent").value =
+                match.opponent;
 
-    document.querySelectorAll(".editButton").forEach(button => {
-        button.addEventListener("click", () => {
-            const index = Number(button.getAttribute("data-index"));
-            const match = matches[index];
+            document.getElementById("date").value =
+                match.date;
 
-            document.getElementById("opponent").value = match.opponent;
-            document.getElementById("date").value = match.date;
-            document.getElementById("ownLk").value = String(match.ownLk).replace(".", ",");
-            document.getElementById("opponentLk").value = String(match.opponentLk).replace(".", ",");
-            document.getElementById("result").value = match.result;
-            document.getElementById("location").value = match.location;
-            document.getElementById("comment").value = match.comment;
+            document.getElementById("ownLk").value =
+                String(match.ownLk).replace(".", ",");
 
-            editIndex = index;
-            submitButton.textContent = "Match aktualisieren";
+            document.getElementById("opponentLk").value =
+                String(match.opponentLk).replace(".", ",");
+
+            document.getElementById("result").value =
+                match.result;
+
+            document.getElementById("location").value =
+                match.location || "";
+
+            document.getElementById("comment").value =
+                match.comment || "";
+
+            editId = id;
+
+            submitButton.textContent =
+                "Match aktualisieren";
+
             cancelEditButton.classList.remove("hidden");
-            setFormMessage(`Bearbeite Match gegen ${match.opponent}.`, "info");
+
+            setFormMessage(
+                `Bearbeite Match gegen ${match.opponent}.`,
+                "info"
+            );
 
             window.scrollTo({
                 top: form.offsetTop - 100,
@@ -428,41 +778,125 @@ function renderMatches() {
             });
         });
     });
+}
 
-    updateDashboard();
+function addDeleteButtonEvents() {
+    const deleteButtons =
+        document.querySelectorAll(".deleteButton");
+
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", async () => {
+            const id = Number(button.dataset.id);
+
+            try {
+                const response = await fetch(
+                    `/api/matches/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Match konnte nicht gelöscht werden."
+                    );
+                }
+
+                if (editId === id) {
+                    form.reset();
+                    resetEditMode();
+                }
+
+                setFormMessage(
+                    "Match erfolgreich gelöscht.",
+                    "success"
+                );
+
+                await loadMatches();
+            } catch (error) {
+                console.error(error);
+
+                setFormMessage(
+                    "Das Match konnte noch nicht gelöscht werden.",
+                    "error"
+                );
+            }
+        });
+    });
 }
 
 cancelEditButton.addEventListener("click", () => {
     form.reset();
     resetEditMode();
-    setFormMessage("Bearbeitung abgebrochen.", "info");
+
+    setFormMessage(
+        "Bearbeitung abgebrochen.",
+        "info"
+    );
 });
 
-form.addEventListener("submit", event => {
+form.addEventListener("submit", async event => {
     event.preventDefault();
 
-    const opponent = document.getElementById("opponent").value.trim();
-    const date = document.getElementById("date").value;
-    const ownLk = document.getElementById("ownLk").value.trim();
-    const opponentLk = document.getElementById("opponentLk").value.trim();
-    const result = document.getElementById("result").value.trim();
-    const location = document.getElementById("location").value.trim();
-    const comment = document.getElementById("comment").value.trim();
+    const opponent =
+        document.getElementById("opponent")
+            .value
+            .trim();
+
+    const date =
+        document.getElementById("date").value;
+
+    const ownLk =
+        document.getElementById("ownLk")
+            .value
+            .trim();
+
+    const opponentLk =
+        document.getElementById("opponentLk")
+            .value
+            .trim();
+
+    const result =
+        document.getElementById("result")
+            .value
+            .trim();
+
+    const location =
+        document.getElementById("location")
+            .value
+            .trim();
+
+    const comment =
+        document.getElementById("comment")
+            .value
+            .trim();
 
     if (!isValidLk(ownLk)) {
-        setFormMessage("Bitte gib eine gültige eigene LK zwischen 1,0 und 25,0 ein.", "error");
+        setFormMessage(
+            "Bitte gib eine gültige eigene LK zwischen 1,0 und 25,0 ein.",
+            "error"
+        );
+
         document.getElementById("ownLk").focus();
         return;
     }
 
     if (!isValidLk(opponentLk)) {
-        setFormMessage("Bitte gib eine gültige Gegner-LK zwischen 1,0 und 25,0 ein.", "error");
+        setFormMessage(
+            "Bitte gib eine gültige Gegner-LK zwischen 1,0 und 25,0 ein.",
+            "error"
+        );
+
         document.getElementById("opponentLk").focus();
         return;
     }
 
     if (!isValidResult(result)) {
-        setFormMessage("Bitte gib ein gültiges Ergebnis ein, z. B. 6:4 6:3", "error");
+        setFormMessage(
+            "Bitte gib ein gültiges Ergebnis ein, zum Beispiel 6:4 6:3.",
+            "error"
+        );
+
         document.getElementById("result").focus();
         return;
     }
@@ -470,25 +904,73 @@ form.addEventListener("submit", event => {
     const match = {
         opponent,
         date,
-        ownLk: normalizeCommaNumber(ownLk),
-        opponentLk: normalizeCommaNumber(opponentLk),
+        ownLk: Number(normalizeCommaNumber(ownLk)),
+        opponentLk: Number(
+            normalizeCommaNumber(opponentLk)
+        ),
         result,
         location,
         comment
     };
 
-    if (editIndex === null) {
-        matches.push(match);
-        setFormMessage("Match erfolgreich gespeichert.", "success");
-    } else {
-        matches[editIndex] = match;
-        setFormMessage("Match erfolgreich aktualisiert.", "success");
-    }
+    try {
+        let response;
 
-    saveMatches();
-    form.reset();
-    resetEditMode();
-    renderMatches();
+        if (editId === null) {
+            response = await fetch("/api/matches", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(match)
+            });
+        } else {
+            response = await fetch(
+                `/api/matches/${editId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(match)
+                }
+            );
+        }
+
+        if (!response.ok) {
+            const errorData = await response
+                .json()
+                .catch(() => ({}));
+
+            throw new Error(
+                errorData.error ||
+                "Das Match konnte nicht gespeichert werden."
+            );
+        }
+
+        const successMessage =
+            editId === null
+                ? "Match erfolgreich gespeichert."
+                : "Match erfolgreich aktualisiert.";
+
+        form.reset();
+        resetEditMode();
+
+        setFormMessage(
+            successMessage,
+            "success"
+        );
+
+        await loadMatches();
+    } catch (error) {
+        console.error(error);
+
+        setFormMessage(
+            error.message ||
+            "Das Match konnte nicht gespeichert werden.",
+            "error"
+        );
+    }
 });
 
-renderMatches();
+loadMatches();
